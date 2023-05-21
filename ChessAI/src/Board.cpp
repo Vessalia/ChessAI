@@ -2,11 +2,6 @@
 
 Board::Board()
 {
-	for (size_t i = 0; i < mBitBoards.size(); ++i)
-	{
-		mBitBoards[i] = BitBoard();
-	}
-
 	for (size_t row = 1; row <= BOARD_DIM; ++row)
 	{
 		for (unsigned char col = 'a'; col < BOARD_DIM + 'a'; ++col)
@@ -33,7 +28,7 @@ Board::Board()
 				}
 			}
 
-			if(row <= 2 || row >= BOARD_DIM - 1) mBitBoards[index].SetBit(row, col, 1);
+			mBitBoards[index].SetBit(row, col, row <= 2 || row >= BOARD_DIM - 1);
 		}
 	}
 }
