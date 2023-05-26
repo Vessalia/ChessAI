@@ -8,13 +8,15 @@ class BitBoard
 public:
 	BitBoard();
 
-	void SetBit(size_t bitNumber, bool on);
-	void FlipBit(size_t bitNumber);
+	BitBoard& SetBit(size_t bitNumber);
+	BitBoard& FlipBit(size_t bitNumber);
+	BitBoard& ClearBit(size_t bitNumber);
 	bool ReadBit(size_t bitNumber) const;
 
-	void SetBit(size_t row, unsigned char col, bool on);
-	void FlipBit(size_t row, unsigned char col);
-	bool ReadBit(size_t row, unsigned char col) const;
+	BitBoard& SetBit(unsigned char col, size_t row);
+	BitBoard& FlipBit(unsigned char col, size_t row);
+	BitBoard& ClearBit(unsigned char col, size_t row);
+	bool ReadBit(unsigned char col, size_t row) const;
 
 private:
 	std::bitset<BOARD_DIM * BOARD_DIM> mBitBoard;
