@@ -15,13 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ChessAI.cpp">
+    <ClCompile Include="src\Entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Board.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\BitBoard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,8 +38,55 @@
     <ClInclude Include="include\BitBoard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\pieces\black_pieces\black_bishop.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pieces\black_pieces\black_king.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pieces\black_pieces\black_knight.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pieces\black_pieces\black_pawn.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pieces\black_pieces\black_queen.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pieces\black_pieces\black_rook.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pieces\white_pieces\white_bishop.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pieces\white_pieces\white_king.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pieces\white_pieces\white_knight.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pieces\white_pieces\white_pawn.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pieces\white_pieces\white_queen.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pieces\white_pieces\white_rook.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

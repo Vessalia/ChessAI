@@ -4,10 +4,13 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#include "Board.h"
+#include "Core.h"
+#include "Game.h"
 
 static SDL_Window* gWindow = nullptr;
 static SDL_Renderer* gRenderer = nullptr;
+
+static Game game;
 
 bool init();
 void draw();
@@ -15,9 +18,6 @@ void close();
 
 int main()
 {
-    Board board;
-    int x = 1;
-
     if (!init())
     {
         std::cout << "Failed to initialize!" << std::endl;
@@ -53,45 +53,50 @@ bool init()
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
-        printf("SDL could not initialize. SDL Error: %s\n", SDL_GetError());
+        std::cout << "SDL could not initialize. SDL Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
     int imgFlags = IMG_INIT_PNG;
     if (!(IMG_Init(imgFlags) & imgFlags))
     {
-        printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+        std::cout << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << std::endl;
         return false;
     }
 
     gWindow = SDL_CreateWindow("Chess", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-    if (gWindow == NULL)
+    if (!gWindow)
     {
-        printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
+        std::cout << "Window could not be created! SDL Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
     gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_SOFTWARE);
-    if (gRenderer == NULL)
+    if (!gRenderer)
     {
-        printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+        std::cout << "Renderer could not be created! SDL Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
     SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
+    game.InitSprites(gRenderer);
 
     return true;
 }
 
 void draw()
 {
-
+    game.Draw(gRenderer);
 }
 
 void close()
 {
     SDL_DestroyRenderer(gRenderer);
     SDL_DestroyWindow(gWindow);
-    gRenderer = NULL;
-    gWindow = NULL;
+    gRenderer = nullptr;
+    gWindow = nullptr;
+
+    IMG_Quit();
+    SDL_Quit();
 }

@@ -1,9 +1,13 @@
 #pragma once
 #include <array>
 #include <vector>
-#include "BitBoard.h"
 
-#define NUM_BITBOARDS 16
+#include <SDL.h>
+
+#include "BitBoard.h"
+#include "Texture.h"
+
+constexpr static size_t NUM_BITBOARDS = 16;
 
 enum Piece
 {
@@ -25,6 +29,13 @@ class Board
 {
 public:
 	Board();
+	~Board();
+
+	void InitSprites(SDL_Renderer* renderer);
+
+	void Draw(SDL_Renderer* renderer) const;
+
+	static size_t PosToIndex(size_t x, size_t y);
 
 private:
 	struct Move
@@ -43,7 +54,6 @@ private:
 	bool CheckValidLocation(Colour colour, size_t to) const;
 	int GetPieceAt(size_t loc) const;
 
-	std::vector<size_t> GetPawnMoves(Colour colour, size_t from) const;
-
 	std::array<BitBoard, NUM_BITBOARDS> mBitBoards;
+	std::array<Texture*, NUM_BITBOARDS> mPieceSprites;
 };
