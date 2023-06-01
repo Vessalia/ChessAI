@@ -4,6 +4,7 @@
 
 #include <SDL.h>
 
+#include "Core.h"
 #include "BitBoard.h"
 #include "Texture.h"
 
@@ -38,6 +39,8 @@ public:
 	static size_t PosToIndex(size_t x, size_t y);
 
 private:
+	friend class Game;
+
 	struct Move
 	{
 		size_t bitboardIndex;
@@ -45,14 +48,21 @@ private:
 		size_t to;
 	};
 
-	static const uint8_t PIECE_MASK = 00000111;
-	static const uint8_t COLOUR_MASK = 00001000;
+	static constexpr uint8_t PIECE_MASK = 0b00000111;
+	static constexpr uint8_t COLOUR_MASK = 0b00001000;
+	
+	static constexpr size_t INVALID_INDEX = BOARD_DIM * BOARD_DIM;
+
+	static constexpr size_t WIDTH = SCREEN_WIDTH / BOARD_DIM;
+	static constexpr size_t HEIGHT = SCREEN_HEIGHT / BOARD_DIM;
 
 	void DoMove(size_t pieceColour, size_t from, size_t to);
 
 	std::vector<size_t> GetValidLocations(size_t from) const;
 	bool CheckValidLocation(Colour colour, size_t to) const;
 	int GetPieceAt(size_t loc) const;
+
+	bool TryMove(size_t from, size_t to);
 
 	std::array<BitBoard, NUM_BITBOARDS> mBitBoards;
 	std::array<Texture*, NUM_BITBOARDS> mPieceSprites;

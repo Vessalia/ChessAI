@@ -49,8 +49,6 @@ Board::~Board()
 	}
 }
 
-#define WIDTH (SCREEN_WIDTH / BOARD_DIM)
-#define HEIGHT (SCREEN_HEIGHT / BOARD_DIM)
 void Board::InitSprites(SDL_Renderer* renderer)
 {
 	std::vector<std::string> colours = { "white_", "black_" };
@@ -171,12 +169,12 @@ std::vector<size_t> Board::GetValidLocations(size_t from) const
 
 	switch (piece)
 	{
-		case PAWN : validLocations = GetPawnMoves(colour, from);
-		case KNIGHT : validLocations = GetKnightMoves(from);
+		case PAWN: validLocations = GetPawnMoves(colour, from); break;
+		case KNIGHT: validLocations = GetKnightMoves(from); break;
 		//case BISHOP :
 		//case ROOK :
-		//case QUEEN: validLocations = GetSlidingMoves();
-		case KING: validLocations = GetKingMoves(from);
+		//case QUEEN: validLocations = GetSlidingMoves(); break;
+		case KING: validLocations = GetKingMoves(from); break;
 	}
 
 	return validLocations;
@@ -195,9 +193,9 @@ bool Board::CheckValidLocation(Colour colour, size_t to) const
 int Board::GetPieceAt(size_t loc) const
 {
 	int pieceColour = -1;
-	for (size_t piece = PAWN; piece <= KING; ++piece)
+	for (size_t piece = PAWN; piece <= KING && pieceColour < 0; ++piece)
 	{
-		for (size_t colour = WHITE; colour <= BLACK; colour += BLACK)
+		for (size_t colour = WHITE; colour <= BLACK && pieceColour < 0; colour += BLACK)
 		{
 			if (mBitBoards[colour | piece].ReadBit(loc))
 			{
@@ -208,6 +206,19 @@ int Board::GetPieceAt(size_t loc) const
 	}
 	
 	return pieceColour;
+}
+
+bool Board::TryMove(size_t from, size_t to)
+{
+	std::vector<size_t> validLocations = GetValidLocations(from);
+	if (!validLocations.size() || std::find(validLocations.begin(), validLocations.end(), to) == validLocations.end()) return false;
+
+	int pieceColour = GetPieceAt(from);
+
+	mBitBoards[pieceColour].ClearBit(from);
+	mBitBoards[pieceColour].SetBit(to);
+
+	return true;
 }
 
 size_t Board::PosToIndex(size_t x, size_t y)

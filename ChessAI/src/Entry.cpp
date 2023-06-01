@@ -13,6 +13,7 @@ static SDL_Renderer* gRenderer = nullptr;
 static Game game;
 
 bool init();
+void handleMousePress();
 void draw();
 void close();
 
@@ -24,6 +25,7 @@ int main()
         return 1;
     }
 
+    bool lastPressed = false;
     bool quit = false;
     SDL_Event e;
 
@@ -34,6 +36,21 @@ int main()
             if (e.type == SDL_QUIT)
             {
                 quit = true;
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN && !lastPressed)
+            {
+                if (e.button.button == SDL_BUTTON_LEFT)
+                {
+                    lastPressed = true;
+                    handleMousePress();
+                }
+            }
+            else if (e.type == SDL_MOUSEBUTTONUP)
+            {
+                if (e.button.button == SDL_BUTTON_LEFT)
+                {
+                    lastPressed = false;
+                }
             }
         }
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -83,6 +100,13 @@ bool init()
     game.InitSprites(gRenderer);
 
     return true;
+}
+
+void handleMousePress()
+{
+    int x, y;
+    SDL_GetMouseState(&x, &y);
+    game.HandleMousePress(x, SCREEN_HEIGHT - y);
 }
 
 void draw()
