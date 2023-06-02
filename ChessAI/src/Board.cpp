@@ -65,7 +65,7 @@ void Board::InitSprites(SDL_Renderer* renderer)
 	}
 }
 
-void Board::Draw(SDL_Renderer* renderer) const
+void Board::Draw(SDL_Renderer* renderer, size_t selectedIndex) const
 {
 	for (int x = 0; x < BOARD_DIM; ++x)
 	{
@@ -78,6 +78,10 @@ void Board::Draw(SDL_Renderer* renderer) const
 			if ((x + y) % 2)
 			{
 				colourR = colourG = colourB = 255;
+			}
+			if (Board::PosToIndex(x, y) == selectedIndex)
+			{
+				colourR = 255; colourG = colourB = 0;
 			}
 
 			SDL_Rect square = { x * WIDTH, HEIGHT * (BOARD_DIM - 1) - y * HEIGHT, WIDTH, HEIGHT };
@@ -96,66 +100,6 @@ void Board::Draw(SDL_Renderer* renderer) const
 void Board::DoMove(size_t pieceColour, size_t from, size_t to)
 {
 	mBitBoards[pieceColour].ClearBit(from).SetBit(to);
-}
-
-std::vector<size_t> GetPawnMoves(Colour colour, size_t from)
-{
-	std::vector<size_t> validLocations;
-	int fromX = from % BOARD_DIM;
-	int fromY = from / BOARD_DIM;
-
-	int dir = colour == WHITE ? 1 : -1;
-	if (fromY + dir >= BOARD_DIM || fromY + dir < 0) return validLocations;
-
-	for (int offset = -1; offset <= 1; ++offset)
-	{
-		if (fromX + offset < 0 || fromX + offset >= BOARD_DIM) continue;
-		validLocations.emplace_back(Board::PosToIndex(fromX + offset, fromY + dir));
-	}
-
-	return validLocations;
-}
-
-std::vector<size_t> GetKnightMoves(size_t from)
-{
-	std::vector<size_t> validLocations;
-	int fromX = from % BOARD_DIM;
-	int fromY = from / BOARD_DIM;
-
-	for (int x = -2; x <= 2; ++x)
-	{
-		for (int y = -2; y <= 2; ++y)
-		{
-			int toX = fromX + x;
-			int toY = fromY + y;
-			bool insideBoard = toX >= 0 && toX < BOARD_DIM&& toY >= 0 && toY < BOARD_DIM;
-			bool isLMove = abs(fromX - toX) == 2 && abs(fromY - toY) == 1 || abs(fromX - toX) == 1 && abs(fromY - toY) == 2;
-			if (insideBoard && isLMove)
-			{
-				validLocations.emplace_back(Board::PosToIndex(toX, toY));
-			}
-		}
-	}
-
-	return validLocations;
-}
-
-std::vector<size_t> GetKingMoves(size_t from)
-{
-	std::vector<size_t> validLocations;
-	int fromX = from % BOARD_DIM;
-	int fromY = from / BOARD_DIM;
-
-	for (int x = -1; x <= 1; ++x)
-	{
-		for (int y = -1; y <= 1; ++y)
-		{
-			bool insideBoard = fromX + x >= 0 && fromX + x < BOARD_DIM && fromY + y >= 0 && fromY + y < BOARD_DIM;
-			if (insideBoard) validLocations.emplace_back(Board::PosToIndex(fromX + x, fromY + y));
-		}
-	}
-
-	return validLocations;
 }
 
 std::vector<size_t> Board::GetValidLocations(size_t from) const
@@ -219,6 +163,78 @@ bool Board::TryMove(size_t from, size_t to)
 	mBitBoards[pieceColour].SetBit(to);
 
 	return true;
+}
+
+BitBoard Board::GetColourBoard(Colour colour) const
+{
+	BitBoard result = mBitBoards[colour | PAWN];
+	for (size_t piece = PAWN; piece <= KING; ++piece)
+	{
+		result &= mBitBoards[colour | piece];
+	}
+
+	return result;
+}
+
+std::vector<size_t> Board::GetPawnMoves(Colour colour, size_t from) const
+{
+	std::vector<size_t> validLocations;
+	int fromX = from % BOARD_DIM;
+	int fromY = from / BOARD_DIM;
+
+	int dir = colour == WHITE ? 1 : -1;
+	if (fromY + dir >= BOARD_DIM || fromY + dir < 0) return validLocations;
+
+	BitBoard blackPieces = GetColourBoard(colour);
+	for (int offset = -1; offset <= 1; ++offset)
+	{
+		if (fromX + offset < 0 || fromX + offset >= BOARD_DIM) continue;
+		validLocations.emplace_back(Board::PosToIndex(fromX + offset, fromY + dir));
+	}
+
+	return validLocations;
+}
+
+std::vector<size_t> Board::GetKnightMoves(size_t from) const
+{
+	std::vector<size_t> validLocations;
+	int fromX = from % BOARD_DIM;
+	int fromY = from / BOARD_DIM;
+
+	for (int x = -2; x <= 2; ++x)
+	{
+		for (int y = -2; y <= 2; ++y)
+		{
+			int toX = fromX + x;
+			int toY = fromY + y;
+			bool insideBoard = toX >= 0 && toX < BOARD_DIM&& toY >= 0 && toY < BOARD_DIM;
+			bool isLMove = abs(fromX - toX) == 2 && abs(fromY - toY) == 1 || abs(fromX - toX) == 1 && abs(fromY - toY) == 2;
+			if (insideBoard && isLMove)
+			{
+				validLocations.emplace_back(Board::PosToIndex(toX, toY));
+			}
+		}
+	}
+
+	return validLocations;
+}
+
+std::vector<size_t> Board::GetKingMoves(size_t from) const
+{
+	std::vector<size_t> validLocations;
+	int fromX = from % BOARD_DIM;
+	int fromY = from / BOARD_DIM;
+
+	for (int x = -1; x <= 1; ++x)
+	{
+		for (int y = -1; y <= 1; ++y)
+		{
+			bool insideBoard = fromX + x >= 0 && fromX + x < BOARD_DIM&& fromY + y >= 0 && fromY + y < BOARD_DIM;
+			if (insideBoard) validLocations.emplace_back(Board::PosToIndex(fromX + x, fromY + y));
+		}
+	}
+
+	return validLocations;
 }
 
 size_t Board::PosToIndex(size_t x, size_t y)

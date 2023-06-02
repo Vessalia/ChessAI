@@ -12,7 +12,7 @@ void Game::InitSprites(SDL_Renderer* renderer)
 
 void Game::Draw(SDL_Renderer* renderer) const
 {
-	mBoard.Draw(renderer);
+	mBoard.Draw(renderer, mSelectedIndex);
 }
 
 void Game::HandleMousePress(int x, int y)
@@ -39,6 +39,6 @@ bool Game::TryMove(size_t x, size_t y)
 {
 	if (mSelectedIndex >= Board::INVALID_INDEX) return false;
 	bool success = mBoard.TryMove(mSelectedIndex, Board::PosToIndex(x, y));
-	if (!success) mSelectedIndex = Board::INVALID_INDEX;
+	mSelectedIndex = Board::INVALID_INDEX;
 	return success;
 }

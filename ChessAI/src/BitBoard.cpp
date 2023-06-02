@@ -5,6 +5,18 @@ BitBoard::BitBoard()
 	mBitBoard.reset();
 }
 
+BitBoard& BitBoard::operator&=(const BitBoard& other)
+{
+	mBitBoard &= other.mBitBoard;
+	return *this;
+}
+
+BitBoard& BitBoard::operator|=(const BitBoard& other)
+{
+	mBitBoard |= other.mBitBoard;
+	return *this;
+}
+
 BitBoard& BitBoard::SetBit(size_t bitNumber)
 {
 	mBitBoard |= static_cast<uint64_t>(1) << bitNumber;

@@ -8,6 +8,9 @@ class BitBoard
 public:
 	BitBoard();
 
+	BitBoard& operator&=(const BitBoard& other);
+	BitBoard& operator|=(const BitBoard& other);
+
 	BitBoard& SetBit(size_t bitNumber);
 	BitBoard& FlipBit(size_t bitNumber);
 	BitBoard& ClearBit(size_t bitNumber);

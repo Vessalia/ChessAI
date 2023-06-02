@@ -34,7 +34,7 @@ public:
 
 	void InitSprites(SDL_Renderer* renderer);
 
-	void Draw(SDL_Renderer* renderer) const;
+	void Draw(SDL_Renderer* renderer, size_t selectedIndex) const;
 
 	static size_t PosToIndex(size_t x, size_t y);
 
@@ -63,6 +63,12 @@ private:
 	int GetPieceAt(size_t loc) const;
 
 	bool TryMove(size_t from, size_t to);
+
+	std::vector<size_t> GetPawnMoves(Colour colour, size_t from) const;
+	std::vector<size_t> GetKnightMoves(size_t from) const;
+	std::vector<size_t> GetKingMoves(size_t from) const;
+
+	BitBoard GetColourBoard(Colour colour) const;
 
 	std::array<BitBoard, NUM_BITBOARDS> mBitBoards;
 	std::array<Texture*, NUM_BITBOARDS> mPieceSprites;
