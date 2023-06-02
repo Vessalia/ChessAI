@@ -69,6 +69,7 @@ private:
 	std::vector<size_t> GetKingMoves(size_t from) const;
 
 	BitBoard GetColourBoard(Colour colour) const;
+	BitBoard GetOccupancyBoard() const;
 
 	std::array<BitBoard, NUM_BITBOARDS> mBitBoards;
 	std::array<Texture*, NUM_BITBOARDS> mPieceSprites;

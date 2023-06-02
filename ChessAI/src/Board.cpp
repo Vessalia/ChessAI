@@ -170,7 +170,21 @@ BitBoard Board::GetColourBoard(Colour colour) const
 	BitBoard result = mBitBoards[colour | PAWN];
 	for (size_t piece = PAWN; piece <= KING; ++piece)
 	{
-		result &= mBitBoards[colour | piece];
+		result |= mBitBoards[colour | piece];
+	}
+
+	return result;
+}
+
+BitBoard Board::GetOccupancyBoard() const
+{
+	BitBoard result = mBitBoards[WHITE | PAWN];
+	for (size_t colour = WHITE; colour <= BLACK; ++colour)
+	{
+		for (size_t piece = PAWN; piece <= KING; ++piece)
+		{
+			result |= mBitBoards[colour | piece];
+		}
 	}
 
 	return result;
@@ -185,10 +199,15 @@ std::vector<size_t> Board::GetPawnMoves(Colour colour, size_t from) const
 	int dir = colour == WHITE ? 1 : -1;
 	if (fromY + dir >= BOARD_DIM || fromY + dir < 0) return validLocations;
 
-	BitBoard blackPieces = GetColourBoard(colour);
+	BitBoard otherPieces = GetColourBoard(static_cast<Colour>(colour ^ Board::COLOUR_MASK));
+	BitBoard allPieces = GetOccupancyBoard();
 	for (int offset = -1; offset <= 1; ++offset)
 	{
-		if (fromX + offset < 0 || fromX + offset >= BOARD_DIM) continue;
+		bool outsideBoard = fromX + offset < 0 || fromX + offset >= BOARD_DIM;
+		bool shovingPiece = !offset && allPieces.ReadBit(Board::PosToIndex(fromX, fromY + dir));
+		bool invalidAttack = offset && !otherPieces.ReadBit(Board::PosToIndex(fromX, fromY + dir));
+		if (outsideBoard || shovingPiece || invalidAttack) continue;
+
 		validLocations.emplace_back(Board::PosToIndex(fromX + offset, fromY + dir));
 	}
 
