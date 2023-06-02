@@ -17,7 +17,7 @@ void close();
 
 int main()
 {
-    FATAL(init() && "Failed to initialize!");
+    FATAL_ASSERT(init() && "Failed to initialize!");
 
     bool lastPressed = false;
     bool quit = false;
