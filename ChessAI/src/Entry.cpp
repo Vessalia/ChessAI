@@ -1,5 +1,3 @@
-#include <iostream>
-
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_image.h>
@@ -19,11 +17,7 @@ void close();
 
 int main()
 {
-    if (!init())
-    {
-        std::cout << "Failed to initialize!" << std::endl;
-        return 1;
-    }
+    FATAL(init() && "Failed to initialize!");
 
     bool lastPressed = false;
     bool quit = false;

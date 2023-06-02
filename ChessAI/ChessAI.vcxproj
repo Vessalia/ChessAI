@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="src\BitBoard.cpp" />
     <ClCompile Include="src\Board.cpp" />
+    <ClCompile Include="src\Core.cpp" />
     <ClCompile Include="src\Entry.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Texture.cpp" />
