@@ -146,7 +146,7 @@ std::vector<size_t> Board::GetValidLocations(size_t from)
 	for (const auto location : validLocations)
 	{
 		DoMove(pieceColour, from, location);
-		validLocations.erase(std::remove_if(validLocations.begin(), validLocations.end(), [this, colour](const auto& location) { return InCheck(colour); }), validLocations.end());
+		validLocations.erase(std::remove_if(validLocations.begin(), validLocations.end(), [this, colour, location](const auto& loc) { return InCheck(colour) && loc == location; }), validLocations.end());
 		DoMove(pieceColour, location, from);
 	}
 
