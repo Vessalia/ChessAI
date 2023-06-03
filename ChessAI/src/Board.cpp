@@ -59,16 +59,16 @@ void Board::InitSprites(SDL_Renderer* renderer)
 		{
 			std::string path = "assets/pieces/" + colours[colour / BLACK] + "pieces/" + colours[colour / BLACK] + pieces[piece] + ".png";
 			mPieceSprites[colour | piece] = new Texture(path, renderer);
-			mPieceSprites[colour | piece]->SetWidth(WIDTH);
-			mPieceSprites[colour | piece]->SetHeight(HEIGHT);
+			mPieceSprites[colour | piece]->SetWidth(mWidth);
+			mPieceSprites[colour | piece]->SetHeight(mHeight);
 		}
 	}
 }
 
 std::vector<size_t> currValidLocations;
-void Board::Draw(SDL_Renderer* renderer, size_t selectedIndex) const
+void Board::Draw(SDL_Renderer* renderer, size_t selectedIndex)
 {
-	if (!currValidLocations.size() && selectedIndex != Board::INVALID_INDEX) currValidLocations = GetValidLocations(selectedIndex);
+	if (!currValidLocations.size() && selectedIndex != INVALID_INDEX) currValidLocations = GetValidLocations(selectedIndex);
 
 	for (int x = 0; x < BOARD_DIM; ++x)
 	{
@@ -82,26 +82,42 @@ void Board::Draw(SDL_Renderer* renderer, size_t selectedIndex) const
 			{
 				colourR = colourG = colourB = 255;
 			}
-			if (Board::PosToIndex(x, y) == selectedIndex)
+			if (PosToIndex(x, y) == selectedIndex)
 			{
 				colourR = 255; colourG = colourB = 0;
 			}
-			if (std::find(currValidLocations.begin(), currValidLocations.end(), Board::PosToIndex(x, y)) != currValidLocations.end())
+			if (std::find(currValidLocations.begin(), currValidLocations.end(), PosToIndex(x, y)) != currValidLocations.end())
 			{
 				colourR = 0; colourG = colourB = 128;
 			}
 
-			SDL_Rect square = { x * WIDTH, HEIGHT * (BOARD_DIM - 1) - y * HEIGHT, WIDTH, HEIGHT };
+			SDL_Rect square = { x * mWidth, mHeight * (BOARD_DIM - 1) - y * mHeight, mWidth, mHeight };
 
 			SDL_SetRenderDrawColor(renderer, colourR, colourG, colourB, colourA);
 			SDL_RenderFillRect(renderer, &square);
 
-			int pieceColour = GetPieceColourAt(Board::PosToIndex(x, y));
+			int pieceColour = GetPieceColourAt(PosToIndex(x, y));
 			if (pieceColour == -1) continue;
 
-			mPieceSprites[pieceColour]->RenderTexture(renderer, x * WIDTH, HEIGHT * (BOARD_DIM - 1) - y * HEIGHT);
+			mPieceSprites[pieceColour]->RenderTexture(renderer, x * mWidth, mHeight * (BOARD_DIM - 1) - y * mHeight);
 		}
 	}
+}
+
+void Board::Resize(int width, int height)
+{
+	mWidth = width / BOARD_DIM; mHeight = height / BOARD_DIM;
+	for (auto& sprite : mPieceSprites)
+	{
+		if (!sprite) continue;
+		sprite->SetWidth(mWidth);
+		sprite->SetHeight(mHeight);
+	}
+}
+
+bool Board::InCheck(Colour colour) const
+{
+	return false;
 }
 
 void Board::DoMove(size_t pieceColour, size_t from, size_t to)
@@ -109,16 +125,15 @@ void Board::DoMove(size_t pieceColour, size_t from, size_t to)
 	mBitBoards[pieceColour].ClearBit(from).SetBit(to);
 }
 
-std::vector<size_t> Board::GetValidLocations(size_t from) const
+std::vector<size_t> Board::GetValidLocations(size_t from)
 {
 	std::vector<size_t> validLocations;
 	int pieceColour = GetPieceColourAt(from);
 	if (pieceColour == -1) return validLocations;
 
-	Piece piece = static_cast<Piece>(pieceColour & Board::PIECE_MASK);
-	Colour colour = static_cast<Colour>(pieceColour & Board::COLOUR_MASK);
-
-	switch (piece)
+	Piece piece = static_cast<Piece>(pieceColour & PIECE_MASK);
+	Colour colour = static_cast<Colour>(pieceColour & COLOUR_MASK);
+		switch (piece)
 	{
 		case PAWN: validLocations = GetPawnMoves(colour, from); break;
 		case KNIGHT: validLocations = GetKnightMoves(colour, from); break;
@@ -126,6 +141,13 @@ std::vector<size_t> Board::GetValidLocations(size_t from) const
 		//case ROOK :
 		//case QUEEN: validLocations = GetSlidingMoves(); break;
 		case KING: validLocations = GetKingMoves(colour, from); break;
+	}
+
+	for (const auto location : validLocations)
+	{
+		DoMove(pieceColour, from, location);
+		validLocations.erase(std::remove_if(validLocations.begin(), validLocations.end(), [=](const auto& location) { return InCheck(colour); }));
+		DoMove(pieceColour, location, from);
 	}
 
 	return validLocations;
@@ -168,8 +190,7 @@ bool Board::TryMove(size_t from, size_t to)
 	int fromPC = GetPieceColourAt(from);
 	int toPC = GetPieceColourAt(to);
 
-	mBitBoards[fromPC].ClearBit(from);
-	mBitBoards[fromPC].SetBit(to);
+	DoMove(fromPC, from, to);
 
 	if (toPC >= 0) mBitBoards[toPC].ClearBit(to);
 
@@ -211,18 +232,18 @@ std::vector<size_t> Board::GetPawnMoves(Colour colour, size_t from) const
 	if (fromY + dir >= BOARD_DIM || fromY + dir < 0) return validLocations;
 
 	BitBoard allPieces = GetOccupancyBoard();
-	BitBoard otherPieces = GetColourBoard(static_cast<Colour>(colour ^ Board::COLOUR_MASK));
-	bool shovingPiece = allPieces.ReadBit(Board::PosToIndex(fromX, fromY + dir));
+	BitBoard otherPieces = GetColourBoard(static_cast<Colour>(colour ^ COLOUR_MASK));
+	bool shovingPiece = allPieces.ReadBit(PosToIndex(fromX, fromY + dir));
 	for (int offset = -1; offset <= 1; ++offset)
 	{
 		bool outsideBoard = fromX + offset < 0 || fromX + offset >= BOARD_DIM;
-		bool invalidAttack = offset && !otherPieces.ReadBit(Board::PosToIndex(fromX + offset, fromY + dir));
+		bool invalidAttack = offset && !otherPieces.ReadBit(PosToIndex(fromX + offset, fromY + dir));
 		if (outsideBoard || (!offset && shovingPiece) || invalidAttack) continue;
 
-		validLocations.emplace_back(Board::PosToIndex(fromX + offset, fromY + dir));
+		validLocations.emplace_back(PosToIndex(fromX + offset, fromY + dir));
 	}
 
-	if(((colour == WHITE && fromY == 1) || (colour == BLACK && fromY == BOARD_DIM - 2)) && !shovingPiece) validLocations.emplace_back(Board::PosToIndex(fromX, fromY + 2 * dir));
+	if(!shovingPiece && ((colour == WHITE && fromY == 1) || (colour == BLACK && fromY == BOARD_DIM - 2))) validLocations.emplace_back(PosToIndex(fromX, fromY + 2 * dir));
 
 	return validLocations;
 }
@@ -242,10 +263,10 @@ std::vector<size_t> Board::GetKnightMoves(Colour colour, size_t from) const
 			int toY = fromY + y;
 			bool insideBoard = toX >= 0 && toX < BOARD_DIM&& toY >= 0 && toY < BOARD_DIM;
 			bool isLMove = abs(fromX - toX) == 2 && abs(fromY - toY) == 1 || abs(fromX - toX) == 1 && abs(fromY - toY) == 2;
-			bool invalidAttack = samePieces.ReadBit(Board::PosToIndex(toX, toY));
+			bool invalidAttack = samePieces.ReadBit(PosToIndex(toX, toY));
 			if (!insideBoard || !isLMove || invalidAttack) continue;
 
-			validLocations.emplace_back(Board::PosToIndex(toX, toY));
+			validLocations.emplace_back(PosToIndex(toX, toY));
 		}
 	}
 
@@ -267,10 +288,10 @@ std::vector<size_t> Board::GetKingMoves(Colour colour, size_t from) const
 			int toX = fromX + x;
 			int toY = fromY + y;
 			bool insideBoard = toX >= 0 && toX < BOARD_DIM && toY >= 0 && toY < BOARD_DIM;
-			bool invalidAttack = samePieces.ReadBit(Board::PosToIndex(toX, toY));
+			bool invalidAttack = samePieces.ReadBit(PosToIndex(toX, toY));
 			if (!insideBoard || invalidAttack) continue;
 				
-			validLocations.emplace_back(Board::PosToIndex(toX, toY));
+			validLocations.emplace_back(PosToIndex(toX, toY));
 		}
 	}
 

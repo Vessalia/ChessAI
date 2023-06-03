@@ -46,6 +46,13 @@ int main()
                     lastPressed = false;
                 }
             }
+            else if (e.type == SDL_WINDOWEVENT)
+            {
+                if (e.window.event == SDL_WINDOWEVENT_RESIZED)
+                {
+                    game.Resize(e.window.data1, e.window.data2);
+                }
+            }
         }
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
