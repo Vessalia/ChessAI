@@ -30,7 +30,7 @@ void Game::HandleMousePress(int x, int y)
 bool Game::TrySelect(size_t x, size_t y)
 {
 	size_t index = Board::PosToIndex(x, y);
-	if (index >= Board::INVALID_INDEX || mBoard.GetPieceAt(index) < 0) return false;
+	if (index >= Board::INVALID_INDEX || mBoard.GetPieceColourAt(index) < 0) return false;
 	mSelectedIndex = index;
 	return true;
 }

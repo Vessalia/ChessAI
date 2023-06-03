@@ -60,13 +60,13 @@ private:
 
 	std::vector<size_t> GetValidLocations(size_t from) const;
 	bool CheckValidLocation(Colour colour, size_t to) const;
-	int GetPieceAt(size_t loc) const;
+	int GetPieceColourAt(size_t loc) const;
 
 	bool TryMove(size_t from, size_t to);
 
 	std::vector<size_t> GetPawnMoves(Colour colour, size_t from) const;
-	std::vector<size_t> GetKnightMoves(size_t from) const;
-	std::vector<size_t> GetKingMoves(size_t from) const;
+	std::vector<size_t> GetKnightMoves(Colour colour, size_t from) const;
+	std::vector<size_t> GetKingMoves(Colour colour, size_t from) const;
 
 	BitBoard GetColourBoard(Colour colour) const;
 	BitBoard GetOccupancyBoard() const;
