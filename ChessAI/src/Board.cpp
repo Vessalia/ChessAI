@@ -133,7 +133,7 @@ std::vector<size_t> Board::GetValidLocations(size_t from)
 
 	Piece piece = static_cast<Piece>(pieceColour & PIECE_MASK);
 	Colour colour = static_cast<Colour>(pieceColour & COLOUR_MASK);
-		switch (piece)
+	switch (piece)
 	{
 		case PAWN: validLocations = GetPawnMoves(colour, from); break;
 		case KNIGHT: validLocations = GetKnightMoves(colour, from); break;
@@ -143,12 +143,14 @@ std::vector<size_t> Board::GetValidLocations(size_t from)
 		case KING: validLocations = GetKingMoves(colour, from); break;
 	}
 
-	for (const auto location : validLocations)
-	{
-		DoMove(pieceColour, from, location);
-		validLocations.erase(std::remove_if(validLocations.begin(), validLocations.end(), [this, colour, location](const auto& loc) { return InCheck(colour) && loc == location; }), validLocations.end());
-		DoMove(pieceColour, location, from);
-	}
+	validLocations.erase(std::remove_if(validLocations.begin(), validLocations.end(),
+		[this, pieceColour, from](const auto& location)
+		{
+			DoMove(pieceColour, from, location);
+			bool inCheck = InCheck(pieceColour & COLOUR_MASK);
+			DoMove(pieceColour, location, from);
+			return inCheck;
+		}), validLocations.end());
 
 	return validLocations;
 }
