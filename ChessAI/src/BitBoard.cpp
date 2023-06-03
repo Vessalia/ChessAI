@@ -17,6 +17,20 @@ BitBoard& BitBoard::operator|=(const BitBoard& other)
 	return *this;
 }
 
+BitBoard BitBoard::operator&(const BitBoard& other)
+{
+	BitBoard result;
+	result.mBitBoard = mBitBoard & other.mBitBoard;
+	return result;
+}
+
+BitBoard BitBoard::operator|(const BitBoard& other)
+{
+	BitBoard result;
+	result.mBitBoard = mBitBoard | other.mBitBoard;
+	return result;
+}
+
 BitBoard& BitBoard::SetBit(size_t bitNumber)
 {
 	mBitBoard |= static_cast<uint64_t>(1) << bitNumber;

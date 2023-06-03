@@ -146,7 +146,7 @@ std::vector<size_t> Board::GetValidLocations(size_t from)
 	for (const auto location : validLocations)
 	{
 		DoMove(pieceColour, from, location);
-		validLocations.erase(std::remove_if(validLocations.begin(), validLocations.end(), [=](const auto& location) { return InCheck(colour); }));
+		validLocations.erase(std::remove_if(validLocations.begin(), validLocations.end(), [this, colour](const auto& location) { return InCheck(colour); }), validLocations.end());
 		DoMove(pieceColour, location, from);
 	}
 
@@ -200,7 +200,7 @@ bool Board::TryMove(size_t from, size_t to)
 BitBoard Board::GetColourBoard(Colour colour) const
 {
 	BitBoard result = mBitBoards[colour | PAWN];
-	for (size_t piece = PAWN; piece <= KING; ++piece)
+	for (size_t piece = KNIGHT; piece <= KING; ++piece)
 	{
 		result |= mBitBoards[colour | piece];
 	}
@@ -210,16 +210,7 @@ BitBoard Board::GetColourBoard(Colour colour) const
 
 BitBoard Board::GetOccupancyBoard() const
 {
-	BitBoard result = mBitBoards[WHITE | PAWN];
-	for (size_t colour = WHITE; colour <= BLACK; ++colour)
-	{
-		for (size_t piece = PAWN; piece <= KING; ++piece)
-		{
-			result |= mBitBoards[colour | piece];
-		}
-	}
-
-	return result;
+	return GetColourBoard(WHITE) | GetColourBoard(BLACK);
 }
 
 std::vector<size_t> Board::GetPawnMoves(Colour colour, size_t from) const
