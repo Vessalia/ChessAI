@@ -65,8 +65,11 @@ void Board::InitSprites(SDL_Renderer* renderer)
 	}
 }
 
+std::vector<size_t> currValidLocations;
 void Board::Draw(SDL_Renderer* renderer, size_t selectedIndex) const
 {
+	if (!currValidLocations.size() && selectedIndex != Board::INVALID_INDEX) currValidLocations = GetValidLocations(selectedIndex);
+
 	for (int x = 0; x < BOARD_DIM; ++x)
 	{
 		for (int y = 0; y < BOARD_DIM; ++y)
@@ -82,6 +85,10 @@ void Board::Draw(SDL_Renderer* renderer, size_t selectedIndex) const
 			if (Board::PosToIndex(x, y) == selectedIndex)
 			{
 				colourR = 255; colourG = colourB = 0;
+			}
+			if (std::find(currValidLocations.begin(), currValidLocations.end(), Board::PosToIndex(x, y)) != currValidLocations.end())
+			{
+				colourR = 0; colourG = colourB = 128;
 			}
 
 			SDL_Rect square = { x * WIDTH, HEIGHT * (BOARD_DIM - 1) - y * HEIGHT, WIDTH, HEIGHT };
@@ -155,6 +162,7 @@ int Board::GetPieceColourAt(size_t loc) const
 bool Board::TryMove(size_t from, size_t to)
 {
 	std::vector<size_t> validLocations = GetValidLocations(from);
+	currValidLocations.clear();
 	if (!validLocations.size() || std::find(validLocations.begin(), validLocations.end(), to) == validLocations.end()) return false;
 
 	int fromPC = GetPieceColourAt(from);
@@ -204,17 +212,17 @@ std::vector<size_t> Board::GetPawnMoves(Colour colour, size_t from) const
 
 	BitBoard allPieces = GetOccupancyBoard();
 	BitBoard otherPieces = GetColourBoard(static_cast<Colour>(colour ^ Board::COLOUR_MASK));
+	bool shovingPiece = allPieces.ReadBit(Board::PosToIndex(fromX, fromY + dir));
 	for (int offset = -1; offset <= 1; ++offset)
 	{
 		bool outsideBoard = fromX + offset < 0 || fromX + offset >= BOARD_DIM;
-		bool shovingPiece = !offset && allPieces.ReadBit(Board::PosToIndex(fromX, fromY + dir));
-		bool invalidAttack = offset && !otherPieces.ReadBit(Board::PosToIndex(fromX, fromY + dir));
-		if (outsideBoard || shovingPiece || invalidAttack) continue;
+		bool invalidAttack = offset && !otherPieces.ReadBit(Board::PosToIndex(fromX + offset, fromY + dir));
+		if (outsideBoard || (!offset && shovingPiece) || invalidAttack) continue;
 
 		validLocations.emplace_back(Board::PosToIndex(fromX + offset, fromY + dir));
 	}
 
-	if((colour == WHITE && fromY == 1) || (colour == BLACK && fromY == BOARD_DIM - 2)) validLocations.emplace_back(Board::PosToIndex(fromX, fromY + 2 * dir));
+	if(((colour == WHITE && fromY == 1) || (colour == BLACK && fromY == BOARD_DIM - 2)) && !shovingPiece) validLocations.emplace_back(Board::PosToIndex(fromX, fromY + 2 * dir));
 
 	return validLocations;
 }
