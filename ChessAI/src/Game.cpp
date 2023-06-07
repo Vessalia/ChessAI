@@ -34,7 +34,7 @@ void Game::HandleMousePress(int x, int y)
 
 void Game::Print()
 {
-	mBoard.MaskPawnAttacks(BLACK, 63);
+	mBoard.Print();
 }
 
 bool Game::TrySelect(size_t x, size_t y)

@@ -34,6 +34,9 @@ Board::Board()
 			}
 
 			if (row < 2 || row >= BOARD_DIM - 2) mBitBoards[index].SetBit(col, row);
+
+			mPawnAttacks[0][PosToIndex(row, col)] = MaskPawnAttacks(WHITE, PosToIndex(row, col));
+			mPawnAttacks[1][PosToIndex(row, col)] = MaskPawnAttacks(BLACK, PosToIndex(row, col));
 		}
 	}
 }
@@ -117,19 +120,14 @@ void Board::Resize(int width, int height)
 
 void Board::Print() const
 {
-	for (size_t colour = WHITE; colour <= BLACK; colour += BLACK)
+	for (int i = 0; i < NUM_COLOURS; ++i)
 	{
-		printf("Colour \n");
-		for (size_t piece = PAWN; piece <= KING; ++piece)
+		for (int j = 0; j < BOARD_DIM * BOARD_DIM; ++j)
 		{
-			printf("Piece \n");
-			mBitBoards[colour | piece].Print();
+			mPawnAttacks[i][j].Print();
 			printf("\n");
 		}
-		printf("\n");
 	}
-
-	mBitBoards[WHITE | PAWN].Print();
 }
 
 BitBoard Board::MaskPawnAttacks(Colour colour, size_t square) const

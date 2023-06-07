@@ -53,7 +53,7 @@ private:
 	size_t mWidth = SCREEN_WIDTH / BOARD_DIM;
 	size_t mHeight = SCREEN_HEIGHT / BOARD_DIM;
 
-	std::array<std::array<BitBoard, NUM_COLOURS>, BOARD_DIM * BOARD_DIM> mPawnAttacks;
+	std::array<std::array<BitBoard, BOARD_DIM * BOARD_DIM>, NUM_COLOURS> mPawnAttacks;
 	std::array<BitBoard, NUM_BITBOARDS> mBitBoards;
 
 	std::array<Texture*, NUM_BITBOARDS> mPieceSprites;
