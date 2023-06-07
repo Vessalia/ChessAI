@@ -5,6 +5,7 @@
 #include <SDL.h>
 
 #include "Core.h"
+#include "BoardCore.h"
 #include "BitBoard.h"
 #include "Texture.h"
 
@@ -17,13 +18,15 @@ enum Piece
 	BISHOP,
 	ROOK,
 	QUEEN,
-	KING
+	KING,
+	NUM_PIECES
 };
 
 enum Colour
 {
 	WHITE = 0,
-	BLACK = 8
+	BLACK = 8,
+	NUM_COLOURS = 2
 };
 
 class Board
@@ -37,6 +40,8 @@ public:
 	void Draw(SDL_Renderer* renderer, size_t selectedIndex);
 	void Resize(int width, int height);
 
+	void Print() const;
+
 private:
 	friend class Game;
 
@@ -48,8 +53,12 @@ private:
 	size_t mWidth = SCREEN_WIDTH / BOARD_DIM;
 	size_t mHeight = SCREEN_HEIGHT / BOARD_DIM;
 
+	std::array<std::array<BitBoard, NUM_COLOURS>, BOARD_DIM * BOARD_DIM> mPawnAttacks;
 	std::array<BitBoard, NUM_BITBOARDS> mBitBoards;
+
 	std::array<Texture*, NUM_BITBOARDS> mPieceSprites;
+
+	BitBoard MaskPawnAttacks(Colour colour, size_t square) const;
 
 	bool InCheck(Colour colour) const;
 

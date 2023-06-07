@@ -29,6 +29,7 @@
   <ItemGroup>
     <ClInclude Include="include\BitBoard.h" />
     <ClInclude Include="include\Board.h" />
+    <ClInclude Include="include\BoardCore.h" />
     <ClInclude Include="include\Core.h" />
     <ClInclude Include="include\Game.h" />
     <ClInclude Include="include\Texture.h" />

@@ -13,6 +13,8 @@ public:
 	void Resize(int width, int height);
 	void HandleMousePress(int x, int y);
 
+	void Print();
+
 private:
 	Board mBoard;
 

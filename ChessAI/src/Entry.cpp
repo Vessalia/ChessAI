@@ -23,6 +23,8 @@ int main()
     bool quit = false;
     SDL_Event e;
 
+    game.Print();
+
     while (!quit)
     {
         while (SDL_PollEvent(&e))

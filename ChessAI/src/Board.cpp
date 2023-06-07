@@ -115,6 +115,42 @@ void Board::Resize(int width, int height)
 	}
 }
 
+void Board::Print() const
+{
+	for (size_t colour = WHITE; colour <= BLACK; colour += BLACK)
+	{
+		printf("Colour \n");
+		for (size_t piece = PAWN; piece <= KING; ++piece)
+		{
+			printf("Piece \n");
+			mBitBoards[colour | piece].Print();
+			printf("\n");
+		}
+		printf("\n");
+	}
+
+	mBitBoards[WHITE | PAWN].Print();
+}
+
+BitBoard Board::MaskPawnAttacks(Colour colour, size_t square) const
+{
+	BitBoard attacks, bitBoard;
+
+	bitBoard.SetBit(square);
+	if (colour == WHITE)
+	{
+		if (((bitBoard << (BOARD_DIM - 1)) & notHFile).NonZero()) attacks |= (bitBoard << (BOARD_DIM - 1));
+		if (((bitBoard << (BOARD_DIM + 1)) & notAFile).NonZero()) attacks |= (bitBoard << (BOARD_DIM + 1));
+	}
+	else
+	{
+		if (((bitBoard >> (BOARD_DIM - 1)) & notAFile).NonZero()) attacks |= (bitBoard >> (BOARD_DIM - 1));
+		if (((bitBoard >> (BOARD_DIM + 1)) & notHFile).NonZero()) attacks |= (bitBoard >> (BOARD_DIM + 1));
+	}
+
+	return attacks;
+}
+
 bool Board::InCheck(Colour colour) const
 {
 	return false;
@@ -147,7 +183,7 @@ std::vector<size_t> Board::GetValidLocations(size_t from)
 		[this, pieceColour, from](const auto& location)
 		{
 			DoMove(pieceColour, from, location);
-			bool inCheck = InCheck(pieceColour & COLOUR_MASK);
+			bool inCheck = InCheck(static_cast<Colour>(pieceColour & COLOUR_MASK));
 			DoMove(pieceColour, location, from);
 			return inCheck;
 		}), validLocations.end());
@@ -230,8 +266,8 @@ std::vector<size_t> Board::GetPawnMoves(Colour colour, size_t from) const
 	for (int offset = -1; offset <= 1; ++offset)
 	{
 		bool outsideBoard = fromX + offset < 0 || fromX + offset >= BOARD_DIM;
-		bool invalidAttack = offset && !otherPieces.ReadBit(PosToIndex(fromX + offset, fromY + dir));
-		if (outsideBoard || (!offset && shovingPiece) || invalidAttack) continue;
+		bool invalidAttack = !otherPieces.ReadBit(PosToIndex(fromX + offset, fromY + dir));
+		if (outsideBoard || (!offset && shovingPiece)) continue;
 
 		validLocations.emplace_back(PosToIndex(fromX + offset, fromY + dir));
 	}

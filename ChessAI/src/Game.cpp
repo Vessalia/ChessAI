@@ -32,6 +32,11 @@ void Game::HandleMousePress(int x, int y)
 	}
 }
 
+void Game::Print()
+{
+	mBoard.MaskPawnAttacks(BLACK, 63);
+}
+
 bool Game::TrySelect(size_t x, size_t y)
 {
 	size_t index = Board::PosToIndex(x, y);
