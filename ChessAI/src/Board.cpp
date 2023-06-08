@@ -35,8 +35,12 @@ Board::Board()
 
 			if (row < 2 || row >= BOARD_DIM - 2) mBitBoards[index].SetBit(col, row);
 
-			mPawnAttacks[0][PosToIndex(row, col)] = MaskPawnAttacks(WHITE, PosToIndex(row, col));
-			mPawnAttacks[1][PosToIndex(row, col)] = MaskPawnAttacks(BLACK, PosToIndex(row, col));
+			mPawnAttacks[0][PosToIndex(col, row)] = MaskPawnAttacks(WHITE, PosToIndex(col, row));
+			mPawnAttacks[1][PosToIndex(col, row)] = MaskPawnAttacks(BLACK, PosToIndex(col, row));
+
+			mKnightAttacks[PosToIndex(col, row)] = MaskKnightAttacks(PosToIndex(col, row));
+
+			mKingAttacks[PosToIndex(col, row)] = MaskKingAttacks(PosToIndex(col, row));
 		}
 	}
 }
@@ -120,13 +124,10 @@ void Board::Resize(int width, int height)
 
 void Board::Print() const
 {
-	for (int i = 0; i < NUM_COLOURS; ++i)
+	for (int j = 0; j < BOARD_DIM * BOARD_DIM; ++j)
 	{
-		for (int j = 0; j < BOARD_DIM * BOARD_DIM; ++j)
-		{
-			mPawnAttacks[i][j].Print();
-			printf("\n");
-		}
+		mKingAttacks[j].Print();
+		printf("\n");
 	}
 }
 
@@ -137,14 +138,58 @@ BitBoard Board::MaskPawnAttacks(Colour colour, size_t square) const
 	bitBoard.SetBit(square);
 	if (colour == WHITE)
 	{
-		if (((bitBoard << (BOARD_DIM - 1)) & notHFile).NonZero()) attacks |= (bitBoard << (BOARD_DIM - 1));
-		if (((bitBoard << (BOARD_DIM + 1)) & notAFile).NonZero()) attacks |= (bitBoard << (BOARD_DIM + 1));
+		attacks |= ((bitBoard << (BOARD_DIM - 1)) & notHFile);
+		attacks |= ((bitBoard << (BOARD_DIM + 1)) & notAFile);
 	}
 	else
 	{
-		if (((bitBoard >> (BOARD_DIM - 1)) & notAFile).NonZero()) attacks |= (bitBoard >> (BOARD_DIM - 1));
-		if (((bitBoard >> (BOARD_DIM + 1)) & notHFile).NonZero()) attacks |= (bitBoard >> (BOARD_DIM + 1));
+		attacks |= ((bitBoard >> (BOARD_DIM + 1)) & notHFile);
+		attacks |= ((bitBoard >> (BOARD_DIM - 1)) & notAFile);
 	}
+
+	return attacks;
+}
+
+BitBoard Board::MaskKnightAttacks(size_t square) const
+{
+	BitBoard attacks, bitBoard;
+
+	bitBoard.SetBit(square);
+
+	// check north
+	attacks |= ((bitBoard << (BOARD_DIM - 2)) & notHGFile);
+	attacks |= ((bitBoard << (2 * BOARD_DIM - 1)) & notHFile);
+	attacks |= ((bitBoard << (2 * BOARD_DIM + 1)) & notAFile);
+	attacks |= ((bitBoard << (BOARD_DIM + 2)) & notABFile);
+
+	// check south
+	attacks |= ((bitBoard >> (BOARD_DIM + 2)) & notHGFile);
+	attacks |= ((bitBoard >> (2 * BOARD_DIM + 1)) & notHFile);
+	attacks |= ((bitBoard >> (2 * BOARD_DIM - 1)) & notAFile);
+	attacks |= ((bitBoard >> (BOARD_DIM - 2)) & notABFile);
+
+	return attacks;
+}
+
+BitBoard Board::MaskKingAttacks(size_t square) const
+{
+	BitBoard attacks, bitBoard;
+
+	bitBoard.SetBit(square);
+
+	// check north
+	attacks |= ((bitBoard << (BOARD_DIM - 1)) & notHFile);
+	attacks |= (bitBoard << BOARD_DIM);
+	attacks |= ((bitBoard << (BOARD_DIM + 1)) & notAFile);
+
+	//check left and right
+	attacks |= ((bitBoard >> 1) & notHFile);
+	attacks |= ((bitBoard << 1) & notAFile);
+
+	// check south
+	attacks |= ((bitBoard >> (BOARD_DIM + 1)) & notHFile);
+	attacks |= (bitBoard >> BOARD_DIM);
+	attacks |= ((bitBoard >> (BOARD_DIM - 1)) & notAFile);
 
 	return attacks;
 }

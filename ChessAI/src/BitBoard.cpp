@@ -1,4 +1,5 @@
 #include "BitBoard.h"
+#include "iostream"
 
 BitBoard::BitBoard()
 {
@@ -113,14 +114,15 @@ bool BitBoard::NonZero() const
 
 void BitBoard::Print() const
 {
-	for (int rank = 0; rank < BOARD_DIM; ++rank)
+	for (int rank = BOARD_DIM - 1; rank >= 0; --rank)
 	{
 		for (int file = 0; file < BOARD_DIM; ++file)
 		{
 			int square = rank * BOARD_DIM + file;
-			printf(" %d ", ReadBit(square));
+			int val = ReadBit(square);
+			std::cout << " " << val << " ";
 		}
-		printf("\n");
+		std::cout << std::endl;
 	}
-	printf("%llu \n", mBitBoard);
+	std::cout << "Value: " << mBitBoard.to_ullong() << std::endl;
 }

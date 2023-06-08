@@ -53,12 +53,17 @@ private:
 	size_t mWidth = SCREEN_WIDTH / BOARD_DIM;
 	size_t mHeight = SCREEN_HEIGHT / BOARD_DIM;
 
-	std::array<std::array<BitBoard, BOARD_DIM * BOARD_DIM>, NUM_COLOURS> mPawnAttacks;
 	std::array<BitBoard, NUM_BITBOARDS> mBitBoards;
+
+	std::array<std::array<BitBoard, BOARD_DIM * BOARD_DIM>, NUM_COLOURS> mPawnAttacks;
+	std::array<BitBoard, BOARD_DIM* BOARD_DIM> mKnightAttacks;
+	std::array<BitBoard, BOARD_DIM* BOARD_DIM> mKingAttacks;
 
 	std::array<Texture*, NUM_BITBOARDS> mPieceSprites;
 
 	BitBoard MaskPawnAttacks(Colour colour, size_t square) const;
+	BitBoard MaskKnightAttacks(size_t square) const;
+	BitBoard MaskKingAttacks(size_t square) const;
 
 	bool InCheck(Colour colour) const;
 
