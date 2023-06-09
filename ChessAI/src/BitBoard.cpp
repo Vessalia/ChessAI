@@ -6,9 +6,14 @@ BitBoard::BitBoard()
 	mBitBoard.reset();
 }
 
-BitBoard& BitBoard::operator=(uint64_t val)
+BitBoard::operator bool() const
 {
-	mBitBoard = val;
+	return mBitBoard != 0;
+}
+
+BitBoard BitBoard::operator-=(uint64_t val)
+{
+	*this = BitBoard(mBitBoard.to_ullong() - val);
 	return *this;
 }
 
@@ -36,28 +41,33 @@ BitBoard& BitBoard::operator>>=(size_t numBits)
 	return *this;
 }
 
-BitBoard BitBoard::operator<<(size_t numBits)
+BitBoard BitBoard::operator-(uint64_t val) const
+{
+	return BitBoard(mBitBoard.to_ullong() - val);
+}
+
+BitBoard BitBoard::operator<<(size_t numBits) const
 {
 	BitBoard result;
 	result.mBitBoard = mBitBoard << numBits;
 	return result;
 }
 
-BitBoard BitBoard::operator>>(size_t numBits)
+BitBoard BitBoard::operator>>(size_t numBits) const
 {
 	BitBoard result;
 	result.mBitBoard = mBitBoard >> numBits;
 	return result;
 }
 
-BitBoard BitBoard::operator&(const BitBoard& other)
+BitBoard BitBoard::operator&(const BitBoard& other) const
 {
 	BitBoard result;
 	result.mBitBoard = mBitBoard & other.mBitBoard;
 	return result;
 }
 
-BitBoard BitBoard::operator|(const BitBoard& other)
+BitBoard BitBoard::operator|(const BitBoard& other) const
 {
 	BitBoard result;
 	result.mBitBoard = mBitBoard | other.mBitBoard;
@@ -70,20 +80,10 @@ BitBoard& BitBoard::SetBit(size_t bitNumber)
 	return *this;
 }
 
-BitBoard& BitBoard::SetBit(size_t col, size_t row)
-{
-	return SetBit(col + BOARD_DIM * row);
-}
-
 BitBoard& BitBoard::FlipBit(size_t bitNumber)
 {
 	mBitBoard ^= (static_cast<uint64_t>(1) << bitNumber);
 	return *this;
-}
-
-BitBoard& BitBoard::FlipBit(size_t col, size_t row)
-{
-	return FlipBit(col + BOARD_DIM * row);
 }
 
 BitBoard& BitBoard::ClearBit(size_t bitNumber)
@@ -92,9 +92,11 @@ BitBoard& BitBoard::ClearBit(size_t bitNumber)
 	return *this;
 }
 
-BitBoard& BitBoard::ClearBit(size_t col, size_t row)
+bool BitBoard::PopBit(size_t bitNumber)
 {
-	return ClearBit(col + BOARD_DIM * row);
+	bool result = ReadBit(bitNumber);
+	if(result) FlipBit(bitNumber);
+	return result;
 }
 
 bool BitBoard::ReadBit(size_t bitNumber) const
@@ -102,15 +104,49 @@ bool BitBoard::ReadBit(size_t bitNumber) const
 	return mBitBoard.to_ullong() & (static_cast<uint64_t>(1) << bitNumber);
 }
 
-bool BitBoard::ReadBit(size_t col, size_t row) const
+size_t BitBoard::CountBits() const
 {
-	return ReadBit(col + BOARD_DIM * row);
+	BitBoard temp = BitBoard(mBitBoard.to_ullong());
+	size_t count = 0;
+
+	while (temp)
+	{
+		temp &= (temp - 1);
+		++count;
+	}
+
+	return count;
 }
 
-bool BitBoard::NonZero() const
+#ifdef _MSC_VER
+#include <intrin.h>
+size_t BitBoard::GetLSBIndex() const
 {
-	return mBitBoard == 0 ? false : true;
+	unsigned long index;
+	uint64_t board = mBitBoard.to_ullong();
+
+	if (_BitScanForward64(&index, board))
+	{
+		return static_cast<size_t>(index);
+	}
+
+	return BOARD_DIM * BOARD_DIM;
 }
+#else
+size_t BitBoard::GetLSBIndex() const
+{
+	size_t index = 0;
+	uint64_t mask = 1;
+	uint64_t board = mBitBoard.to_ullong();
+	while (!(board & mask) && index < BOARD_DIM * BOARD_DIM)
+	{
+		mask <<= 1;
+		++index;
+	}
+
+	return index;
+}
+#endif
 
 void BitBoard::Print() const
 {

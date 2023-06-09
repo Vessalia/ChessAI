@@ -64,6 +64,11 @@ private:
 	BitBoard MaskPawnAttacks(Colour colour, size_t square) const;
 	BitBoard MaskKnightAttacks(size_t square) const;
 	BitBoard MaskKingAttacks(size_t square) const;
+	BitBoard MaskBishopAttacks(size_t square) const;
+	BitBoard MaskRookAttacks(size_t square) const;
+
+	BitBoard GenerateBishopAttacks(size_t square, BitBoard blockers) const;
+	BitBoard GenerateRookAttacks(size_t square, BitBoard blockers) const;
 
 	bool InCheck(Colour colour) const;
 
