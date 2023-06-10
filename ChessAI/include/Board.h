@@ -56,8 +56,8 @@ private:
 	std::array<BitBoard, NUM_BITBOARDS> mBitBoards;
 
 	std::array<std::array<BitBoard, BOARD_DIM * BOARD_DIM>, NUM_COLOURS> mPawnAttacks;
-	std::array<BitBoard, BOARD_DIM* BOARD_DIM> mKnightAttacks;
-	std::array<BitBoard, BOARD_DIM* BOARD_DIM> mKingAttacks;
+	std::array<BitBoard, BOARD_DIM * BOARD_DIM> mKnightAttacks;
+	std::array<BitBoard, BOARD_DIM * BOARD_DIM> mKingAttacks;
 
 	std::array<Texture*, NUM_BITBOARDS> mPieceSprites;
 
@@ -69,6 +69,8 @@ private:
 
 	BitBoard GenerateBishopAttacks(size_t square, BitBoard blockers) const;
 	BitBoard GenerateRookAttacks(size_t square, BitBoard blockers) const;
+
+	BitBoard SetOccupancy(size_t index, BitBoard attackMask) const;
 
 	bool InCheck(Colour colour) const;
 

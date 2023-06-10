@@ -4,7 +4,6 @@
 
 #include "Core.h"
 #include "Game.h"
-#include <chrono>
 
 static SDL_Window* gWindow = nullptr;
 static SDL_Renderer* gRenderer = nullptr;
@@ -24,12 +23,7 @@ int main()
     bool quit = false;
     SDL_Event e;
 
-    auto startTime = std::chrono::high_resolution_clock::now();
     game.Print();
-    auto endTime = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-
-    std::cout << "Elapsed time: " << duration.count() << " milliseconds" << std::endl;
 
     while (!quit)
     {

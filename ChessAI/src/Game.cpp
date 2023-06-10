@@ -35,14 +35,11 @@ void Game::HandleMousePress(int x, int y)
 
 void Game::Print()
 {
-	std::random_device rd;
-	std::mt19937 rng(rd());
-	std::uniform_int_distribution<uint64_t> distribution(0, -1);
-	uint64_t NUM_TESTS = 10000000;
-	for (int i = 0; i < NUM_TESTS; ++i)
-	{
-		size_t index = BitBoard(distribution(rng)).GetLSBIndex();
-	}
+	std::cout << GetRand() << std::endl;
+	std::cout << GetRand() << std::endl;
+	std::cout << GetRand() << std::endl;
+	std::cout << GetRand() << std::endl;
+	std::cout << GetRand() << std::endl;
 }
 
 bool Game::TrySelect(size_t x, size_t y)

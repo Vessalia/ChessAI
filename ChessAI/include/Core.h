@@ -3,6 +3,10 @@
 #include <iostream>
 
 void Assert(bool cond);
+unsigned int GetRandU32();
+uint64_t GetRandU64();
+uint64_t GetMagicNumber();
+
 
 #ifndef NDEBUG
 #define DEBUG_ASSERT(cond) Assert(cond)

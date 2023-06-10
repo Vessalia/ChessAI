@@ -11,12 +11,6 @@ BitBoard::operator bool() const
 	return mBitBoard != 0;
 }
 
-BitBoard BitBoard::operator-=(uint64_t val)
-{
-	*this = BitBoard(mBitBoard.to_ullong() - val);
-	return *this;
-}
-
 BitBoard& BitBoard::operator&=(const BitBoard& other)
 {
 	mBitBoard &= other.mBitBoard;
@@ -39,11 +33,6 @@ BitBoard& BitBoard::operator>>=(size_t numBits)
 {
 	mBitBoard >>= numBits;
 	return *this;
-}
-
-BitBoard BitBoard::operator-(uint64_t val) const
-{
-	return BitBoard(mBitBoard.to_ullong() - val);
 }
 
 BitBoard BitBoard::operator<<(size_t numBits) const
@@ -76,19 +65,19 @@ BitBoard BitBoard::operator|(const BitBoard& other) const
 
 BitBoard& BitBoard::SetBit(size_t bitNumber)
 {
-	mBitBoard |= (static_cast<uint64_t>(1) << bitNumber);
+	mBitBoard |= (1ULL << bitNumber);
 	return *this;
 }
 
 BitBoard& BitBoard::FlipBit(size_t bitNumber)
 {
-	mBitBoard ^= (static_cast<uint64_t>(1) << bitNumber);
+	mBitBoard ^= (1ULL << bitNumber);
 	return *this;
 }
 
 BitBoard& BitBoard::ClearBit(size_t bitNumber)
 {
-	mBitBoard &= ~(static_cast<uint64_t>(1) << bitNumber);
+	mBitBoard &= ~(1ULL << bitNumber);
 	return *this;
 }
 
@@ -101,19 +90,14 @@ bool BitBoard::PopBit(size_t bitNumber)
 
 bool BitBoard::ReadBit(size_t bitNumber) const
 {
-	return mBitBoard.to_ullong() & (static_cast<uint64_t>(1) << bitNumber);
+	return mBitBoard.to_ullong() & (1ULL << bitNumber);
 }
 
 size_t BitBoard::CountBits() const
 {
-	BitBoard temp = BitBoard(mBitBoard.to_ullong());
-	size_t count = 0;
-
-	while (temp)
-	{
-		temp &= (temp - 1);
-		++count;
-	}
+	uint64_t bits = mBitBoard.to_ullong();
+	size_t count;
+	for (count = 0; bits; ++count, bits &= bits - 1);
 
 	return count;
 }
@@ -123,14 +107,7 @@ size_t BitBoard::CountBits() const
 size_t BitBoard::GetLSBIndex() const
 {
 	unsigned long index;
-	uint64_t board = mBitBoard.to_ullong();
-
-	if (_BitScanForward64(&index, board))
-	{
-		return static_cast<size_t>(index);
-	}
-
-	return BOARD_DIM * BOARD_DIM;
+	return _BitScanForward64(&index, mBitBoard.to_ullong())) ? index : BOARD_DIM * BOARD_DIM;
 }
 #else
 size_t BitBoard::GetLSBIndex() const
@@ -138,11 +115,7 @@ size_t BitBoard::GetLSBIndex() const
 	size_t index = 0;
 	uint64_t mask = 1;
 	uint64_t board = mBitBoard.to_ullong();
-	while (!(board & mask) && index < BOARD_DIM * BOARD_DIM)
-	{
-		mask <<= 1;
-		++index;
-	}
+	for (; !(board & mask) && index < BOARD_DIM * BOARD_DIM; ++index, mask <<= 1);
 
 	return index;
 }

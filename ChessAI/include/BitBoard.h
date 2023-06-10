@@ -11,13 +11,11 @@ public:
 
 	explicit operator bool() const;
 
-	BitBoard operator-=(uint64_t val);
 	BitBoard& operator&=(const BitBoard& other);
 	BitBoard& operator|=(const BitBoard& other);
 	BitBoard& operator<<=(size_t numBits);
 	BitBoard& operator>>=(size_t numBits);
 
-	BitBoard operator-(uint64_t val) const;
 	BitBoard operator<<(size_t numBits) const;
 	BitBoard operator>>(size_t numBits) const;
 	BitBoard operator&(const BitBoard& other) const;

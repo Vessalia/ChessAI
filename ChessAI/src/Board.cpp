@@ -1,5 +1,4 @@
 #include "Board.h"
-#include "Core.h"
 
 Board::Board()
 {
@@ -320,6 +319,20 @@ BitBoard Board::GenerateRookAttacks(size_t square, BitBoard blockers) const
 	}
 
 	return attacks;
+}
+
+// for a given index, load the binary defined lsb from the provided bitboard (ex: index = 11010 means lod the 2nd, 4th, and 5th lsbs in the board)
+BitBoard Board::SetOccupancy(size_t index, BitBoard attackMask) const
+{
+	BitBoard result;
+	for (size_t i = 0; i < attackMask.CountBits(); ++i)
+	{
+		size_t square = attackMask.GetLSBIndex();
+		attackMask.ClearBit(square);
+		if (index & (1ULL << i)) result.SetBit(square);
+	}
+
+	return result;
 }
 
 bool Board::InCheck(Colour colour) const
