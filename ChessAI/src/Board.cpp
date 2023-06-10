@@ -40,6 +40,12 @@ Board::Board()
 			mKnightAttacks[PosToIndex(col, row)] = MaskKnightAttacks(PosToIndex(col, row));
 
 			mKingAttacks[PosToIndex(col, row)] = MaskKingAttacks(PosToIndex(col, row));
+
+			for (int square = 0; square < BOARD_DIM * BOARD_DIM; ++square)
+			{
+				mBishopMagics[square] = FindMagicNumber(square, bishopBitCount[square], BISHOP);
+				mRookMagics[square] = FindMagicNumber(square, rookBitCount[square], ROOK);
+			}
 		}
 	}
 }
@@ -128,211 +134,6 @@ void Board::Print() const
 		mKingAttacks[j].Print();
 		printf("\n");
 	}
-}
-
-BitBoard Board::MaskPawnAttacks(Colour colour, size_t square) const
-{
-	BitBoard attacks, bitBoard;
-
-	bitBoard.SetBit(square);
-	if (colour == WHITE)
-	{
-		attacks |= ((bitBoard << (BOARD_DIM - 1)) & notHFile);
-		attacks |= ((bitBoard << (BOARD_DIM + 1)) & notAFile);
-	}
-	else
-	{
-		attacks |= ((bitBoard >> (BOARD_DIM + 1)) & notHFile);
-		attacks |= ((bitBoard >> (BOARD_DIM - 1)) & notAFile);
-	}
-
-	return attacks;
-}
-
-BitBoard Board::MaskKnightAttacks(size_t square) const
-{
-	BitBoard attacks, bitBoard;
-
-	bitBoard.SetBit(square);
-
-	// check north
-	attacks |= ((bitBoard << (BOARD_DIM - 2)) & notHGFile);
-	attacks |= ((bitBoard << (2 * BOARD_DIM - 1)) & notHFile);
-	attacks |= ((bitBoard << (2 * BOARD_DIM + 1)) & notAFile);
-	attacks |= ((bitBoard << (BOARD_DIM + 2)) & notABFile);
-
-	// check south
-	attacks |= ((bitBoard >> (BOARD_DIM + 2)) & notHGFile);
-	attacks |= ((bitBoard >> (2 * BOARD_DIM + 1)) & notHFile);
-	attacks |= ((bitBoard >> (2 * BOARD_DIM - 1)) & notAFile);
-	attacks |= ((bitBoard >> (BOARD_DIM - 2)) & notABFile);
-
-	return attacks;
-}
-
-BitBoard Board::MaskKingAttacks(size_t square) const
-{
-	BitBoard attacks, bitBoard;
-
-	bitBoard.SetBit(square);
-
-	// check north
-	attacks |= ((bitBoard << (BOARD_DIM - 1)) & notHFile);
-	attacks |= (bitBoard << BOARD_DIM);
-	attacks |= ((bitBoard << (BOARD_DIM + 1)) & notAFile);
-
-	//check left and right
-	attacks |= ((bitBoard >> 1) & notHFile);
-	attacks |= ((bitBoard << 1) & notAFile);
-
-	// check south
-	attacks |= ((bitBoard >> (BOARD_DIM + 1)) & notHFile);
-	attacks |= (bitBoard >> BOARD_DIM);
-	attacks |= ((bitBoard >> (BOARD_DIM - 1)) & notAFile);
-
-	return attacks;
-}
-
-BitBoard Board::MaskBishopAttacks(size_t square) const
-{
-	BitBoard attacks;
-	int rank, file, sourceRank, sourceFile;
-	sourceRank = square / BOARD_DIM;
-	sourceFile = square % BOARD_DIM;
-	
-	for (rank = sourceRank + 1, file = sourceFile + 1; rank <= BOARD_DIM - 2 && file <= BOARD_DIM - 2; ++rank, ++file)
-	{
-		attacks.SetBit(PosToIndex(file, rank));
-	}
-
-	for (rank = sourceRank - 1, file = sourceFile + 1; rank > 0 && file <= BOARD_DIM - 2; --rank, ++file)
-	{
-		attacks.SetBit(PosToIndex(file, rank));
-	}
-
-	for (rank = sourceRank + 1, file = sourceFile - 1; rank <= BOARD_DIM - 2 && file > 0; ++rank, --file)
-	{
-		attacks.SetBit(PosToIndex(file, rank));
-	}
-
-	for (rank = sourceRank - 1, file = sourceFile - 1; rank > 0 && file > 0; --rank, --file)
-	{
-		attacks.SetBit(PosToIndex(file, rank));
-	}
-
-	return attacks;
-}
-
-BitBoard Board::GenerateBishopAttacks(size_t square, BitBoard blockers) const
-{
-	BitBoard attacks;
-	int rank, file, sourceRank, sourceFile;
-	sourceRank = square / BOARD_DIM;
-	sourceFile = square % BOARD_DIM;
-
-	for (rank = sourceRank + 1, file = sourceFile + 1; rank <= BOARD_DIM - 2 && file <= BOARD_DIM - 2; ++rank, ++file)
-	{
-		attacks.SetBit(PosToIndex(file, rank));
-		if (blockers.ReadBit(PosToIndex(file, rank))) break;
-	}
-
-	for (rank = sourceRank - 1, file = sourceFile + 1; rank > 0 && file <= BOARD_DIM - 2; --rank, ++file)
-	{
-		attacks.SetBit(PosToIndex(file, rank));
-		if (blockers.ReadBit(PosToIndex(file, rank))) break;
-	}
-
-	for (rank = sourceRank + 1, file = sourceFile - 1; rank <= BOARD_DIM - 2 && file > 0; ++rank, --file)
-	{
-		attacks.SetBit(PosToIndex(file, rank));
-		if (blockers.ReadBit(PosToIndex(file, rank))) break;
-	}
-
-	for (rank = sourceRank - 1, file = sourceFile - 1; rank > 0 && file > 0; --rank, --file)
-	{
-		attacks.SetBit(PosToIndex(file, rank));
-		if (blockers.ReadBit(PosToIndex(file, rank))) break;
-	}
-
-	return attacks;
-}
-
-BitBoard Board::MaskRookAttacks(size_t square) const
-{
-	BitBoard attacks;
-	int rank, file, sourceRank, sourceFile;
-	sourceRank = square / BOARD_DIM;
-	sourceFile = square % BOARD_DIM;
-
-	for (rank = sourceRank + 1; rank <= BOARD_DIM - 2; ++rank)
-	{
-		attacks.SetBit(PosToIndex(sourceFile, rank));
-	}
-
-	for (rank = sourceRank - 1; rank > 0; --rank)
-	{
-		attacks.SetBit(PosToIndex(sourceFile, rank));
-	}
-
-	for (file = sourceFile + 1; file <= BOARD_DIM - 2; ++file)
-	{
-		attacks.SetBit(PosToIndex(file, sourceRank));
-	}
-
-	for (file = sourceFile - 1; file > 0; --file)
-	{
-		attacks.SetBit(PosToIndex(file, sourceRank));
-	}
-
-	return attacks;
-}
-
-BitBoard Board::GenerateRookAttacks(size_t square, BitBoard blockers) const
-{
-	BitBoard attacks;
-	int rank, file, sourceRank, sourceFile;
-	sourceRank = square / BOARD_DIM;
-	sourceFile = square % BOARD_DIM;
-
-	for (rank = sourceRank + 1; rank <= BOARD_DIM - 2; ++rank)
-	{
-		attacks.SetBit(PosToIndex(sourceFile, rank));
-		if (blockers.ReadBit(PosToIndex(sourceFile, rank))) break;
-	}
-
-	for (rank = sourceRank - 1; rank > 0; --rank)
-	{
-		attacks.SetBit(PosToIndex(sourceFile, rank));
-		if (blockers.ReadBit(PosToIndex(sourceFile, rank))) break;
-	}
-
-	for (file = sourceFile + 1; file <= BOARD_DIM - 2; ++file)
-	{
-		attacks.SetBit(PosToIndex(file, sourceRank));
-		if (blockers.ReadBit(PosToIndex(file, sourceRank))) break;
-	}
-
-	for (file = sourceFile - 1; file > 0; --file)
-	{
-		attacks.SetBit(PosToIndex(file, sourceRank));
-		if (blockers.ReadBit(PosToIndex(file, sourceRank))) break;
-	}
-
-	return attacks;
-}
-
-// for a given index, load the binary defined lsb from the provided bitboard (ex: index = 11010 means lod the 2nd, 4th, and 5th lsbs in the board)
-BitBoard Board::SetOccupancy(size_t index, BitBoard attackMask) const
-{
-	BitBoard result;
-	for (size_t i = 0; i < attackMask.CountBits(); ++i)
-	{
-		size_t square = attackMask.GetLSBIndex();
-		attackMask.ClearBit(square);
-		if (index & (1ULL << i)) result.SetBit(square);
-	}
-
-	return result;
 }
 
 bool Board::InCheck(Colour colour) const
@@ -509,9 +310,4 @@ std::vector<size_t> Board::GetKingMoves(Colour colour, size_t from) const
 	}
 
 	return validLocations;
-}
-
-size_t Board::PosToIndex(size_t x, size_t y)
-{
-	return x + BOARD_DIM * y;
 }

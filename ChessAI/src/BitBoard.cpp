@@ -56,10 +56,24 @@ BitBoard BitBoard::operator&(const BitBoard& other) const
 	return result;
 }
 
+BitBoard BitBoard::operator&(size_t other) const
+{
+	BitBoard result;
+	result.mBitBoard = mBitBoard.to_ullong() & other;
+	return result;
+}
+
 BitBoard BitBoard::operator|(const BitBoard& other) const
 {
 	BitBoard result;
 	result.mBitBoard = mBitBoard | other.mBitBoard;
+	return result;
+}
+
+BitBoard BitBoard::operator*(const BitBoard& other) const
+{
+	BitBoard result;
+	result.mBitBoard = mBitBoard * other.mBitBoard;
 	return result;
 }
 
@@ -107,7 +121,7 @@ size_t BitBoard::CountBits() const
 size_t BitBoard::GetLSBIndex() const
 {
 	unsigned long index;
-	return _BitScanForward64(&index, mBitBoard.to_ullong())) ? index : BOARD_DIM * BOARD_DIM;
+	return _BitScanForward64(&index, mBitBoard.to_ullong()) ? index : BOARD_DIM * BOARD_DIM;
 }
 #else
 size_t BitBoard::GetLSBIndex() const
@@ -134,4 +148,9 @@ void BitBoard::Print() const
 		std::cout << std::endl;
 	}
 	std::cout << "Value: " << mBitBoard.to_ullong() << std::endl;
+}
+
+uint64_t BitBoard::to_ullong() const
+{
+	return mBitBoard.to_ullong();
 }

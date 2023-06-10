@@ -18,9 +18,9 @@ unsigned int GetRandU32()
 
 uint64_t GetRandU64()
 {
-	uint64_t u1, u2, u3, u4;
-	u1 = GetRandU32(); u2 = GetRandU32();
-	u3 = GetRandU32(); u4 = GetRandU32();
+	uint64_t u1, u2, u3, u4; // slice the top 16 bits
+	u1 = GetRandU32() & 0xFFFF; u2 = GetRandU32() & 0xFFFF;
+	u3 = GetRandU32() & 0xFFFF; u4 = GetRandU32() & 0xFFFF;
 	return u1 | (u2 << 16) | (u3 << 32) | (u4 << 48);
 }
 

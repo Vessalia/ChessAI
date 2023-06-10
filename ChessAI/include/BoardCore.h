@@ -1,6 +1,44 @@
 #pragma once
 #include "BitBoard.h"
 
+enum Piece
+{
+	PAWN,
+	KNIGHT,
+	BISHOP,
+	ROOK,
+	QUEEN,
+	KING,
+	NUM_PIECES
+};
+
+enum Colour
+{
+	WHITE = 0,
+	BLACK = 8,
+	NUM_COLOURS = 2
+};
+
+static size_t PosToIndex(size_t x, size_t y);
+
+static BitBoard MaskPawnAttacks(Colour colour, size_t square);
+static BitBoard MaskKnightAttacks(size_t square);
+static BitBoard MaskKingAttacks(size_t square);
+static BitBoard MaskBishopAttacks(size_t square);
+static BitBoard MaskRookAttacks(size_t square);
+
+static BitBoard GenerateBishopAttacks(size_t square, BitBoard blockers);
+static BitBoard GenerateRookAttacks(size_t square, BitBoard blockers);
+
+static BitBoard SetOccupancy(size_t index, size_t relevantBits, BitBoard attackMask);
+
+static BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook);
+
+
+
+
+constexpr static size_t NUM_BITBOARDS = 16;
+
 // precomputed boards
 constexpr BitBoard notAFile = BitBoard(18374403900871474942ULL);
 constexpr BitBoard notHFile = BitBoard(9187201950435737471ULL);

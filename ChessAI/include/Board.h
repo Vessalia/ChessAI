@@ -9,26 +9,6 @@
 #include "BitBoard.h"
 #include "Texture.h"
 
-constexpr static size_t NUM_BITBOARDS = 16;
-
-enum Piece
-{
-	PAWN,
-	KNIGHT,
-	BISHOP,
-	ROOK,
-	QUEEN,
-	KING,
-	NUM_PIECES
-};
-
-enum Colour
-{
-	WHITE = 0,
-	BLACK = 8,
-	NUM_COLOURS = 2
-};
-
 class Board
 {
 public:
@@ -58,19 +38,10 @@ private:
 	std::array<std::array<BitBoard, BOARD_DIM * BOARD_DIM>, NUM_COLOURS> mPawnAttacks;
 	std::array<BitBoard, BOARD_DIM * BOARD_DIM> mKnightAttacks;
 	std::array<BitBoard, BOARD_DIM * BOARD_DIM> mKingAttacks;
+	std::array<BitBoard, BOARD_DIM * BOARD_DIM> mRookMagics;
+	std::array<BitBoard, BOARD_DIM * BOARD_DIM> mBishopMagics;
 
 	std::array<Texture*, NUM_BITBOARDS> mPieceSprites;
-
-	BitBoard MaskPawnAttacks(Colour colour, size_t square) const;
-	BitBoard MaskKnightAttacks(size_t square) const;
-	BitBoard MaskKingAttacks(size_t square) const;
-	BitBoard MaskBishopAttacks(size_t square) const;
-	BitBoard MaskRookAttacks(size_t square) const;
-
-	BitBoard GenerateBishopAttacks(size_t square, BitBoard blockers) const;
-	BitBoard GenerateRookAttacks(size_t square, BitBoard blockers) const;
-
-	BitBoard SetOccupancy(size_t index, BitBoard attackMask) const;
 
 	bool InCheck(Colour colour) const;
 
@@ -88,6 +59,4 @@ private:
 
 	BitBoard GetColourBoard(Colour colour) const;
 	BitBoard GetOccupancyBoard() const;
-
-	static size_t PosToIndex(size_t x, size_t y);
 };

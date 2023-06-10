@@ -19,7 +19,10 @@ public:
 	BitBoard operator<<(size_t numBits) const;
 	BitBoard operator>>(size_t numBits) const;
 	BitBoard operator&(const BitBoard& other) const;
+	BitBoard operator&(size_t other) const;
 	BitBoard operator|(const BitBoard& other) const;
+
+	BitBoard operator*(const BitBoard& other) const;
 
 	BitBoard& SetBit(size_t bitNumber);
 	BitBoard& FlipBit(size_t bitNumber);
@@ -31,6 +34,8 @@ public:
 	size_t GetLSBIndex() const;
 
 	void Print() const;
+
+	uint64_t to_ullong() const;
 
 private:
 	std::bitset<BOARD_DIM * BOARD_DIM> mBitBoard;
