@@ -44,7 +44,10 @@ Board::Board()
 			for (int square = 0; square < BOARD_DIM * BOARD_DIM; ++square)
 			{
 				mBishopMagics[square] = FindMagicNumber(square, bishopBitCount[square], BISHOP);
+				mBishopAttacks[square].reserve((1ULL << bishopBitCount[square]) - 1);
+
 				mRookMagics[square] = FindMagicNumber(square, rookBitCount[square], ROOK);
+				mRookAttacks[square].reserve((1ULL << rookBitCount[square]) - 1);
 			}
 		}
 	}

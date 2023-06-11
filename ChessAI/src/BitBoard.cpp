@@ -72,9 +72,7 @@ BitBoard BitBoard::operator|(const BitBoard& other) const
 
 BitBoard BitBoard::operator*(const BitBoard& other) const
 {
-	BitBoard result;
-	result.mBitBoard = mBitBoard * other.mBitBoard;
-	return result;
+	return BitBoard(mBitBoard.to_ullong() * other.mBitBoard.to_ullong());
 }
 
 BitBoard& BitBoard::SetBit(size_t bitNumber)

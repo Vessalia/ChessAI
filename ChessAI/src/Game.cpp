@@ -44,7 +44,7 @@ void Game::Print()
 
 bool Game::TrySelect(size_t x, size_t y)
 {
-	size_t index = Board::PosToIndex(x, y);
+	size_t index = PosToIndex(x, y);
 	if (index >= Board::INVALID_INDEX || mBoard.GetPieceColourAt(index) < 0) return false;
 	mSelectedIndex = index;
 	return true;
@@ -53,7 +53,7 @@ bool Game::TrySelect(size_t x, size_t y)
 bool Game::TryMove(size_t x, size_t y)
 {
 	if (mSelectedIndex >= Board::INVALID_INDEX) return false;
-	bool success = mBoard.TryMove(mSelectedIndex, Board::PosToIndex(x, y));
+	bool success = mBoard.TryMove(mSelectedIndex, PosToIndex(x, y));
 	mSelectedIndex = Board::INVALID_INDEX;
 	return success;
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "BitBoard.h"
+#include <array>
 
 enum Piece
 {
@@ -19,20 +20,20 @@ enum Colour
 	NUM_COLOURS = 2
 };
 
-static size_t PosToIndex(size_t x, size_t y);
+size_t PosToIndex(size_t x, size_t y);
 
-static BitBoard MaskPawnAttacks(Colour colour, size_t square);
-static BitBoard MaskKnightAttacks(size_t square);
-static BitBoard MaskKingAttacks(size_t square);
-static BitBoard MaskBishopAttacks(size_t square);
-static BitBoard MaskRookAttacks(size_t square);
+BitBoard MaskPawnAttacks(Colour colour, size_t square);
+BitBoard MaskKnightAttacks(size_t square);
+BitBoard MaskKingAttacks(size_t square);
+BitBoard MaskBishopAttacks(size_t square);
+BitBoard MaskRookAttacks(size_t square);
 
-static BitBoard GenerateBishopAttacks(size_t square, BitBoard blockers);
-static BitBoard GenerateRookAttacks(size_t square, BitBoard blockers);
+BitBoard GenerateBishopAttacks(size_t square, BitBoard blockers);
+BitBoard GenerateRookAttacks(size_t square, BitBoard blockers);
 
-static BitBoard SetOccupancy(size_t index, size_t relevantBits, BitBoard attackMask);
+BitBoard SetOccupancy(size_t index, size_t relevantBits, BitBoard attackMask);
 
-static BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook);
+BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook);
 
 
 
@@ -58,7 +59,7 @@ constexpr std::array<size_t, BOARD_DIM * BOARD_DIM> bishopBitCount =
 	6, 5, 5, 5, 5, 5, 5, 6
 };
 
-constexpr std::array<size_t, BOARD_DIM* BOARD_DIM> rookBitCount =
+constexpr std::array<size_t, BOARD_DIM * BOARD_DIM> rookBitCount =
 {
 	12, 11, 11, 11, 11, 11, 11, 12,
 	11, 10, 10, 10, 10, 10, 10, 11,

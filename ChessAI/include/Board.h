@@ -38,8 +38,14 @@ private:
 	std::array<std::array<BitBoard, BOARD_DIM * BOARD_DIM>, NUM_COLOURS> mPawnAttacks;
 	std::array<BitBoard, BOARD_DIM * BOARD_DIM> mKnightAttacks;
 	std::array<BitBoard, BOARD_DIM * BOARD_DIM> mKingAttacks;
+
 	std::array<BitBoard, BOARD_DIM * BOARD_DIM> mRookMagics;
 	std::array<BitBoard, BOARD_DIM * BOARD_DIM> mBishopMagics;
+	std::array<BitBoard, BOARD_DIM * BOARD_DIM> mBishopMasks;
+	std::array<BitBoard, BOARD_DIM * BOARD_DIM> mRookMasks;
+	std::array<std::vector<BitBoard>, BOARD_DIM * BOARD_DIM> mBishopAttacks;
+	std::array<std::vector<BitBoard>, BOARD_DIM * BOARD_DIM> mRookAttacks;
+
 
 	std::array<Texture*, NUM_BITBOARDS> mPieceSprites;
 

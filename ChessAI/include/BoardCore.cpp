@@ -1,6 +1,6 @@
 #include "BoardCore.h"
 #include "Core.h"
-#include <array>
+#include <vector>
 
 size_t PosToIndex(size_t x, size_t y)
 {
@@ -218,13 +218,13 @@ BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook)
     FATAL_ASSERT(bishopOrRook == BISHOP || bishopOrRook == ROOK);
 
     // max number of possible relevant bits is for rook at 12 -> 2^12 - 1 ~ 4096 possible configurations
-    std::array<BitBoard, 4096> occupancy;
-    std::array<BitBoard, 4096> attacks;
-    std::array<BitBoard, 4096> usedAttacks;
+	int occupancyIndex = 1 << relevantBits; // max value of 4096
+	std::vector<BitBoard> occupancy; occupancy.reserve(occupancyIndex);
+	std::vector<BitBoard> attacks; attacks.reserve(occupancyIndex);
+	std::vector<BitBoard> usedAttacks; usedAttacks.reserve(occupancyIndex);
 
 	BitBoard attackMask = bishopOrRook == BISHOP ? MaskBishopAttacks(square) : MaskRookAttacks(square);
-	int occupancyIndices = 1 << relevantBits; // max value of 4096
-	for (int i = 0; i < occupancyIndices; ++i) // gets every possible configuration of blockers for an attack from a specific square
+	for (int i = 0; i < occupancyIndex; ++i) // gets every possible configuration of blockers for an attack from a specific square
 	{
 		occupancy[i] = SetOccupancy(i, relevantBits, attackMask);
 		attacks[i] = bishopOrRook == BISHOP ? GenerateBishopAttacks(square, occupancy[i]) : GenerateRookAttacks(square, occupancy[i]);
@@ -237,7 +237,7 @@ BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook)
 		if (candidate.CountBits() < 6) continue;
 
 		bool fail = false;
-		for (int index = 0; index < occupancyIndices && !fail; ++index)
+		for (int index = 0; index < occupancyIndex && !fail; ++index)
 		{
 			int magicIndex = (int)((occupancy[index] * magicNum) >> (64 - relevantBits)).to_ullong();
 			if (!usedAttacks[magicIndex]) usedAttacks[magicIndex] = attacks[index];
