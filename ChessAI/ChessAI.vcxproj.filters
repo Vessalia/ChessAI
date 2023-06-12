@@ -33,7 +33,7 @@
     <ClCompile Include="src\Core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="include\BoardCore.cpp">
+    <ClCompile Include="src\BoardCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -2,6 +2,8 @@
 #include <SDL.h>
 #include <iostream>
 
+#define PREMAGICS
+
 void Assert(bool cond);
 unsigned int GetRandU32();
 uint64_t GetRandU64();

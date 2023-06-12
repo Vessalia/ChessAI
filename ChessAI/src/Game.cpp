@@ -35,11 +35,7 @@ void Game::HandleMousePress(int x, int y)
 
 void Game::Print()
 {
-	std::cout << GetRandU32() << std::endl;
-	std::cout << GetRandU32() << std::endl;
-	std::cout << GetRandU32() << std::endl;
-	std::cout << GetRandU32() << std::endl;
-	std::cout << GetRandU32() << std::endl;
+
 }
 
 bool Game::TrySelect(size_t x, size_t y)

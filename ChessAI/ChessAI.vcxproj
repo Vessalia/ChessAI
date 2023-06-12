@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="include\BoardCore.cpp" />
+    <ClCompile Include="src\BoardCore.cpp" />
     <ClCompile Include="src\BitBoard.cpp" />
     <ClCompile Include="src\Board.cpp" />
     <ClCompile Include="src\Core.cpp" />

@@ -213,15 +213,17 @@ BitBoard SetOccupancy(size_t index, size_t relevantBits, BitBoard attackMask)
 	return result;
 }
 
+// this function is used to find bishop and rook magics. It can be used to compute at runtime, or for precomputed magics.
+// The performance trade off is minimal, since the magics are computed only at the creation of the Board object, but precomputed values are provided if preferred
 BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook)
 {
     FATAL_ASSERT(bishopOrRook == BISHOP || bishopOrRook == ROOK);
 
     // max number of possible relevant bits is for rook at 12 -> 2^12 - 1 ~ 4096 possible configurations
 	int occupancyIndex = 1 << relevantBits; // max value of 4096
-	std::vector<BitBoard> occupancy; occupancy.reserve(occupancyIndex);
-	std::vector<BitBoard> attacks; attacks.reserve(occupancyIndex);
-	std::vector<BitBoard> usedAttacks; usedAttacks.reserve(occupancyIndex);
+	std::vector<BitBoard> occupancy; occupancy.resize(occupancyIndex);
+	std::vector<BitBoard> attacks; attacks.resize(occupancyIndex);
+	std::vector<BitBoard> usedAttacks; usedAttacks.resize(occupancyIndex);
 
 	BitBoard attackMask = bishopOrRook == BISHOP ? MaskBishopAttacks(square) : MaskRookAttacks(square);
 	for (int i = 0; i < occupancyIndex; ++i) // gets every possible configuration of blockers for an attack from a specific square
@@ -230,12 +232,12 @@ BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook)
 		attacks[i] = bishopOrRook == BISHOP ? GenerateBishopAttacks(square, occupancy[i]) : GenerateRookAttacks(square, occupancy[i]);
 	}
 
-	for (int i = 0; i < 100000; ++i)
+	for (int i = 0; i < 1000000000; ++i)
 	{
 		BitBoard magicNum = BitBoard(GetMagicNumber());
-		BitBoard candidate = (attackMask * magicNum) & 0xFF00000000000000;
+		BitBoard candidate = (attackMask * magicNum) & 0xFF00000000000000ULL;
 		if (candidate.CountBits() < 6) continue;
-
+		
 		bool fail = false;
 		for (int index = 0; index < occupancyIndex && !fail; ++index)
 		{
@@ -245,6 +247,7 @@ BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook)
 		}
 
 		if (!fail) return magicNum;
+		else std::fill(usedAttacks.begin(), usedAttacks.end(), BitBoard(0));
 	}
 
 	FATAL_ASSERT(false && "magic number could not be found!");

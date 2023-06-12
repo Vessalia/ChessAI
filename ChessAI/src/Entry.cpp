@@ -98,6 +98,10 @@ bool init()
         return false;
     }
 
+#ifndef PREMAGICS
+    InitMagics();
+#endif
+
     SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
     game.InitSprites(gRenderer);
