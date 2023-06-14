@@ -15,14 +15,16 @@ public:
 	BitBoard& operator|=(const BitBoard& other);
 	BitBoard& operator<<=(size_t numBits);
 	BitBoard& operator>>=(size_t numBits);
+	BitBoard& operator*=(const BitBoard& other);
+	BitBoard& operator*=(size_t other);
 
 	BitBoard operator<<(size_t numBits) const;
 	BitBoard operator>>(size_t numBits) const;
 	BitBoard operator&(const BitBoard& other) const;
 	BitBoard operator&(size_t other) const;
 	BitBoard operator|(const BitBoard& other) const;
-
 	BitBoard operator*(const BitBoard& other) const;
+	BitBoard operator*(size_t other) const;
 
 	BitBoard& SetBit(size_t bitNumber);
 	BitBoard& FlipBit(size_t bitNumber);

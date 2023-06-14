@@ -77,17 +77,17 @@ BitBoard MaskBishopAttacks(size_t square)
 	sourceRank = square / BOARD_DIM;
 	sourceFile = square % BOARD_DIM;
 
-	for (rank = sourceRank + 1, file = sourceFile + 1; rank <= BOARD_DIM - 2 && file <= BOARD_DIM - 2; ++rank, ++file)
+	for (rank = sourceRank + 1, file = sourceFile + 1; rank < BOARD_DIM - 1 && file < BOARD_DIM - 1; ++rank, ++file)
 	{
 		attacks.SetBit(PosToIndex(file, rank));
 	}
 
-	for (rank = sourceRank - 1, file = sourceFile + 1; rank > 0 && file <= BOARD_DIM - 2; --rank, ++file)
+	for (rank = sourceRank - 1, file = sourceFile + 1; rank > 0 && file < BOARD_DIM - 1; --rank, ++file)
 	{
 		attacks.SetBit(PosToIndex(file, rank));
 	}
 
-	for (rank = sourceRank + 1, file = sourceFile - 1; rank <= BOARD_DIM - 2 && file > 0; ++rank, --file)
+	for (rank = sourceRank + 1, file = sourceFile - 1; rank < BOARD_DIM - 1 && file > 0; ++rank, --file)
 	{
 		attacks.SetBit(PosToIndex(file, rank));
 	}
@@ -107,25 +107,25 @@ BitBoard GenerateBishopAttacks(size_t square, BitBoard blockers)
 	sourceRank = square / BOARD_DIM;
 	sourceFile = square % BOARD_DIM;
 
-	for (rank = sourceRank + 1, file = sourceFile + 1; rank <= BOARD_DIM - 2 && file <= BOARD_DIM - 2; ++rank, ++file)
+	for (rank = sourceRank + 1, file = sourceFile + 1; rank < BOARD_DIM && file < BOARD_DIM; ++rank, ++file)
 	{
 		attacks.SetBit(PosToIndex(file, rank));
 		if (blockers.ReadBit(PosToIndex(file, rank))) break;
 	}
 
-	for (rank = sourceRank - 1, file = sourceFile + 1; rank > 0 && file <= BOARD_DIM - 2; --rank, ++file)
+	for (rank = sourceRank - 1, file = sourceFile + 1; rank >= 0 && file < BOARD_DIM; --rank, ++file)
 	{
 		attacks.SetBit(PosToIndex(file, rank));
 		if (blockers.ReadBit(PosToIndex(file, rank))) break;
 	}
 
-	for (rank = sourceRank + 1, file = sourceFile - 1; rank <= BOARD_DIM - 2 && file > 0; ++rank, --file)
+	for (rank = sourceRank + 1, file = sourceFile - 1; rank < BOARD_DIM && file >= 0; ++rank, --file)
 	{
 		attacks.SetBit(PosToIndex(file, rank));
 		if (blockers.ReadBit(PosToIndex(file, rank))) break;
 	}
 
-	for (rank = sourceRank - 1, file = sourceFile - 1; rank > 0 && file > 0; --rank, --file)
+	for (rank = sourceRank - 1, file = sourceFile - 1; rank >= 0 && file >= 0; --rank, --file)
 	{
 		attacks.SetBit(PosToIndex(file, rank));
 		if (blockers.ReadBit(PosToIndex(file, rank))) break;
@@ -141,7 +141,7 @@ BitBoard MaskRookAttacks(size_t square)
 	sourceRank = square / BOARD_DIM;
 	sourceFile = square % BOARD_DIM;
 
-	for (rank = sourceRank + 1; rank <= BOARD_DIM - 2; ++rank)
+	for (rank = sourceRank + 1; rank < BOARD_DIM - 1; ++rank)
 	{
 		attacks.SetBit(PosToIndex(sourceFile, rank));
 	}
@@ -151,7 +151,7 @@ BitBoard MaskRookAttacks(size_t square)
 		attacks.SetBit(PosToIndex(sourceFile, rank));
 	}
 
-	for (file = sourceFile + 1; file <= BOARD_DIM - 2; ++file)
+	for (file = sourceFile + 1; file < BOARD_DIM - 1; ++file)
 	{
 		attacks.SetBit(PosToIndex(file, sourceRank));
 	}
@@ -171,25 +171,25 @@ BitBoard GenerateRookAttacks(size_t square, BitBoard blockers)
 	sourceRank = square / BOARD_DIM;
 	sourceFile = square % BOARD_DIM;
 
-	for (rank = sourceRank + 1; rank <= BOARD_DIM - 2; ++rank)
+	for (rank = sourceRank + 1; rank < BOARD_DIM; ++rank)
 	{
 		attacks.SetBit(PosToIndex(sourceFile, rank));
 		if (blockers.ReadBit(PosToIndex(sourceFile, rank))) break;
 	}
 
-	for (rank = sourceRank - 1; rank > 0; --rank)
+	for (rank = sourceRank - 1; rank >= 0; --rank)
 	{
 		attacks.SetBit(PosToIndex(sourceFile, rank));
 		if (blockers.ReadBit(PosToIndex(sourceFile, rank))) break;
 	}
 
-	for (file = sourceFile + 1; file <= BOARD_DIM - 2; ++file)
+	for (file = sourceFile + 1; file < BOARD_DIM; ++file)
 	{
 		attacks.SetBit(PosToIndex(file, sourceRank));
 		if (blockers.ReadBit(PosToIndex(file, sourceRank))) break;
 	}
 
-	for (file = sourceFile - 1; file > 0; --file)
+	for (file = sourceFile - 1; file >= 0; --file)
 	{
 		attacks.SetBit(PosToIndex(file, sourceRank));
 		if (blockers.ReadBit(PosToIndex(file, sourceRank))) break;
@@ -252,4 +252,9 @@ BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook)
 
 	FATAL_ASSERT(false && "magic number could not be found!");
 	return BitBoard(0);
+}
+
+int GetMagicIndex(BitBoard occupancy, uint64_t magicNumber, int relevantBits)
+{
+	return (int)((occupancy.to_ullong() * magicNumber) >> (64 - relevantBits));
 }

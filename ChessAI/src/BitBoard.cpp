@@ -35,6 +35,18 @@ BitBoard& BitBoard::operator>>=(size_t numBits)
 	return *this;
 }
 
+BitBoard& BitBoard::operator*=(const BitBoard& other)
+{
+	mBitBoard = mBitBoard.to_ullong() * other.mBitBoard.to_ullong();
+	return *this;
+}
+
+BitBoard& BitBoard::operator*=(size_t other)
+{
+	mBitBoard = mBitBoard.to_ullong() * other;
+	return *this;
+}
+
 BitBoard BitBoard::operator<<(size_t numBits) const
 {
 	BitBoard result;
@@ -73,6 +85,13 @@ BitBoard BitBoard::operator|(const BitBoard& other) const
 BitBoard BitBoard::operator*(const BitBoard& other) const
 {
 	return BitBoard(mBitBoard.to_ullong() * other.mBitBoard.to_ullong());
+}
+
+BitBoard BitBoard::operator*(size_t other) const
+{
+	BitBoard result;
+	result.mBitBoard = mBitBoard.to_ullong() * other;
+	return result;
 }
 
 BitBoard& BitBoard::SetBit(size_t bitNumber)

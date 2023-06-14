@@ -3,8 +3,7 @@
 #include <random>
 
 Game::Game() 
-	: mBoard(Board())
-	, mSelectedIndex(Board::INVALID_INDEX) { }
+	: mSelectedIndex(Board::INVALID_INDEX) { }
 
 void Game::InitSprites(SDL_Renderer* renderer)
 {
@@ -35,7 +34,7 @@ void Game::HandleMousePress(int x, int y)
 
 void Game::Print()
 {
-
+	mBoard.Print();
 }
 
 bool Game::TrySelect(size_t x, size_t y)

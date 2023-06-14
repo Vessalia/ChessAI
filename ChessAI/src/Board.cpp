@@ -32,19 +32,35 @@ Board::Board()
 				}
 			}
 
-			if (row < 2 || row >= BOARD_DIM - 2) mBitBoards[index].SetBit(PosToIndex(col, row));
+			size_t square = PosToIndex(col, row);
 
-			mPawnAttacks[0][PosToIndex(col, row)] = MaskPawnAttacks(WHITE, PosToIndex(col, row));
-			mPawnAttacks[1][PosToIndex(col, row)] = MaskPawnAttacks(BLACK, PosToIndex(col, row));
+			if (row < 2 || row >= BOARD_DIM - 2) mBitBoards[index].SetBit(square);
 
-			mKnightAttacks[PosToIndex(col, row)] = MaskKnightAttacks(PosToIndex(col, row));
+			mPawnAttacks[0][square] = MaskPawnAttacks(WHITE, square);
+			mPawnAttacks[1][square] = MaskPawnAttacks(BLACK, square);
 
-			mKingAttacks[PosToIndex(col, row)] = MaskKingAttacks(PosToIndex(col, row));
+			mKnightAttacks[square] = MaskKnightAttacks(square);
 
-			for (int square = 0; square < BOARD_DIM * BOARD_DIM; ++square)
+			mKingAttacks[square] = MaskKingAttacks(square);
+
+			mBishopMasks[square] = MaskBishopAttacks(square);
+			mRookMasks[square] = MaskRookAttacks(square);
+			
+			mBishopAttacks[square].resize(1ULL << bishopBitCount[square]);
+			mRookAttacks[square].resize(1ULL << rookBitCount[square]);
+
+			for (size_t occ = 0; occ < (1ULL << bishopBitCount[square]); ++occ)
 			{
-				mBishopAttacks[square].resize((1ULL << bishopBitCount[square]) - 1);
-				mRookAttacks[square].resize((1ULL << rookBitCount[square]) - 1);
+				BitBoard bishopOccupancy = SetOccupancy(occ, bishopBitCount[square], mBishopMasks[square]);
+				int bishopMagicIndex = GetMagicIndex(bishopOccupancy, bishopMagics[square], bishopBitCount[square]);
+				mBishopAttacks[square][bishopMagicIndex] = GenerateBishopAttacks(square, bishopOccupancy);
+			}
+
+			for (size_t occ = 0; occ < (1ULL << rookBitCount[square]); ++occ)
+			{
+				BitBoard rookOccupancy = SetOccupancy(occ, rookBitCount[square], mRookMasks[square]);
+				int rookMagicIndex = GetMagicIndex(rookOccupancy, rookMagics[square], rookBitCount[square]);
+				mRookAttacks[square][rookMagicIndex] = GenerateRookAttacks(square, rookOccupancy);
 			}
 		}
 	}
@@ -129,11 +145,21 @@ void Board::Resize(int width, int height)
 
 void Board::Print() const
 {
-	for (int j = 0; j < BOARD_DIM * BOARD_DIM; ++j)
-	{
-		mKingAttacks[j].Print();
-		printf("\n");
-	}
+	BitBoard occupancy = BitBoard(0);
+	occupancy.SetBit(PosToIndex(1, 5));
+	GetBishopAttacks(PosToIndex(3, 3), occupancy).Print();
+}
+
+BitBoard Board::GetBishopAttacks(size_t square, BitBoard occupancy) const
+{
+	int magicIndex = GetMagicIndex(occupancy & mBishopMasks[square], bishopMagics[square], bishopBitCount[square]);
+	return mBishopAttacks[square][magicIndex];
+}
+
+BitBoard Board::GetRookAttacks(size_t square, BitBoard occupancy) const
+{
+	int magicIndex = GetMagicIndex(occupancy & mRookMasks[square], rookMagics[square], rookBitCount[square]);
+	return mRookAttacks[square][magicIndex];
 }
 
 bool Board::InCheck(Colour colour) const
