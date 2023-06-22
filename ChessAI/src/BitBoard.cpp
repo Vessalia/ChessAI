@@ -143,10 +143,10 @@ size_t BitBoard::GetLSBIndex() const
 #else
 size_t BitBoard::GetLSBIndex() const
 {
-	size_t index = 0;
 	uint64_t mask = 1;
 	uint64_t board = mBitBoard.to_ullong();
-	for (; !(board & mask) && index < BOARD_DIM * BOARD_DIM; ++index, mask <<= 1);
+	size_t index;
+	for (index = 0; !(board & mask) && index < BOARD_DIM * BOARD_DIM; ++index, mask <<= 1); // note: the bitboards are little-endian so we shift right
 
 	return index;
 }

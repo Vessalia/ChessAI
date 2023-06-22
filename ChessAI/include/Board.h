@@ -33,7 +33,7 @@ private:
 	size_t mWidth = SCREEN_WIDTH / BOARD_DIM;
 	size_t mHeight = SCREEN_HEIGHT / BOARD_DIM;
 
-	std::array<BitBoard, NUM_BITBOARDS> mBitBoards;
+	std::array<BitBoard, NUM_BITBOARDS> mPieceBoards;
 
 	std::array<std::array<BitBoard, BOARD_DIM * BOARD_DIM>, NUM_COLOURS> mPawnAttacks;
 	std::array<BitBoard, BOARD_DIM * BOARD_DIM> mKnightAttacks;
@@ -48,6 +48,7 @@ private:
 
 	BitBoard GetBishopAttacks(size_t square, BitBoard occupancy) const;
 	BitBoard GetRookAttacks(size_t square, BitBoard occupancy) const;
+	BitBoard GetQueenAttacks(size_t square, BitBoard occupancy) const;
 
 	bool InCheck(Colour colour) const;
 

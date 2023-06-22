@@ -34,7 +34,7 @@ Board::Board()
 
 			size_t square = PosToIndex(col, row);
 
-			if (row < 2 || row >= BOARD_DIM - 2) mBitBoards[index].SetBit(square);
+			if (row < 2 || row >= BOARD_DIM - 2) mPieceBoards[index].SetBit(square);
 
 			mPawnAttacks[0][square] = MaskPawnAttacks(WHITE, square);
 			mPawnAttacks[1][square] = MaskPawnAttacks(BLACK, square);
@@ -143,11 +143,18 @@ void Board::Resize(int width, int height)
 	}
 }
 
+#include <chrono>
 void Board::Print() const
 {
 	BitBoard occupancy = BitBoard(0);
 	occupancy.SetBit(PosToIndex(1, 5));
-	GetBishopAttacks(PosToIndex(3, 3), occupancy).Print();
+	occupancy.SetBit(PosToIndex(6, 6));
+	occupancy.SetBit(PosToIndex(4, 2));
+	occupancy.SetBit(PosToIndex(2, 2));
+	occupancy.SetBit(PosToIndex(1, 1));
+	occupancy.SetBit(PosToIndex(6, 3));
+
+	GetQueenAttacks(PosToIndex(3, 3), occupancy).Print();
 }
 
 BitBoard Board::GetBishopAttacks(size_t square, BitBoard occupancy) const
@@ -162,6 +169,13 @@ BitBoard Board::GetRookAttacks(size_t square, BitBoard occupancy) const
 	return mRookAttacks[square][magicIndex];
 }
 
+BitBoard Board::GetQueenAttacks(size_t square, BitBoard occupancy) const
+{
+	int magicBishopIndex = GetMagicIndex(occupancy & mBishopMasks[square], bishopMagics[square], bishopBitCount[square]);
+	int magicRookIndex = GetMagicIndex(occupancy & mRookMasks[square], rookMagics[square], rookBitCount[square]);
+	return mBishopAttacks[square][magicBishopIndex] | mRookAttacks[square][magicRookIndex];
+}
+
 bool Board::InCheck(Colour colour) const
 {
 	return false;
@@ -169,7 +183,7 @@ bool Board::InCheck(Colour colour) const
 
 void Board::DoMove(size_t pieceColour, size_t from, size_t to)
 {
-	mBitBoards[pieceColour].ClearBit(from).SetBit(to);
+	mPieceBoards[pieceColour].ClearBit(from).SetBit(to);
 }
 
 std::vector<size_t> Board::GetValidLocations(size_t from)
@@ -206,7 +220,7 @@ bool Board::CheckValidLocation(Colour colour, size_t to) const
 {
 	for (size_t bitBoard = colour | PAWN; bitBoard < (colour | KING); ++bitBoard)
 	{
-		if (mBitBoards[bitBoard].ReadBit(to)) return false;
+		if (mPieceBoards[bitBoard].ReadBit(to)) return false;
 	}
 
 	return true;
@@ -219,7 +233,7 @@ int Board::GetPieceColourAt(size_t loc) const
 	{
 		for (size_t colour = WHITE; colour <= BLACK && pieceColour < 0; colour += BLACK)
 		{
-			if (mBitBoards[colour | piece].ReadBit(loc))
+			if (mPieceBoards[colour | piece].ReadBit(loc))
 			{
 				pieceColour = colour | piece;
 				break;
@@ -241,17 +255,17 @@ bool Board::TryMove(size_t from, size_t to)
 
 	DoMove(fromPC, from, to);
 
-	if (toPC >= 0) mBitBoards[toPC].ClearBit(to);
+	if (toPC >= 0) mPieceBoards[toPC].ClearBit(to);
 
 	return true;
 }
 
 BitBoard Board::GetColourBoard(Colour colour) const
 {
-	BitBoard result = mBitBoards[colour | PAWN];
+	BitBoard result = mPieceBoards[colour | PAWN];
 	for (size_t piece = KNIGHT; piece <= KING; ++piece)
 	{
-		result |= mBitBoards[colour | piece];
+		result |= mPieceBoards[colour | piece];
 	}
 
 	return result;
