@@ -1,7 +1,9 @@
 #pragma once
 #include "Core.h"
 #include "BitBoard.h"
+#include "Texture.h"
 #include <array>
+#include <unordered_map>
 
 enum Piece
 {
@@ -38,10 +40,36 @@ BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook)
 
 int GetMagicIndex(BitBoard occupancy, uint64_t magicNumber, int relevantBits);
 
+void InitSprites(SDL_Renderer* renderer);
+void DestroySprites();
+
+void ResizeSprites(int boardWidth, int boardHeight);
+
 
 
 
 constexpr static size_t NUM_BITBOARDS = 16;
+
+static std::array<Texture*, NUM_BITBOARDS> pieceSprites;
+static size_t texWidth = SCREEN_WIDTH / BOARD_DIM;
+static size_t texHeight = SCREEN_HEIGHT / BOARD_DIM;
+
+static std::unordered_map<char, int> fenHelper =
+{
+	{'P', WHITE | PAWN},
+	{'N', WHITE | KNIGHT},
+	{'B', WHITE | BISHOP},
+	{'R', WHITE | ROOK},
+	{'Q', WHITE | QUEEN},
+	{'K', WHITE | KING},
+
+	{'p', BLACK | PAWN},
+	{'n', BLACK | KNIGHT},
+	{'b', BLACK | BISHOP},
+	{'r', BLACK | ROOK},
+	{'q', BLACK | QUEEN},
+	{'k', BLACK | KING}
+};
 
 // precomputed boards for performancec
 constexpr BitBoard notAFile = BitBoard(18374403900871474942ULL);

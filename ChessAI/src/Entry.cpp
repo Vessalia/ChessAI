@@ -102,7 +102,7 @@ bool init()
 
     SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
-    game.InitSprites(gRenderer);
+    InitSprites(gRenderer);
 
     return true;
 }

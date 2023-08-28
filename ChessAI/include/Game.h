@@ -6,8 +6,6 @@ class Game
 public:
 	Game();
 
-	void InitSprites(SDL_Renderer* renderer);
-
 	void Draw(SDL_Renderer* renderer);
 	void Resize(int width, int height);
 	void HandleMousePress(int x, int y);

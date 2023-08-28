@@ -13,14 +13,14 @@ class Board
 {
 public:
 	Board();
-	~Board();
-
-	void InitSprites(SDL_Renderer* renderer);
+	Board(const std::string& fen);
 
 	void Draw(SDL_Renderer* renderer, size_t selectedIndex);
 	void Resize(int width, int height);
 
 	void Print() const;
+
+	static Board ParseFen(const std::string& fen);
 
 private:
 	friend class Game;
@@ -29,9 +29,6 @@ private:
 	static constexpr uint8_t COLOUR_MASK = 0b00001000;
 	
 	static constexpr size_t INVALID_INDEX = BOARD_DIM * BOARD_DIM;
-
-	size_t mWidth = SCREEN_WIDTH / BOARD_DIM;
-	size_t mHeight = SCREEN_HEIGHT / BOARD_DIM;
 
 	std::array<BitBoard, NUM_BITBOARDS> mPieceBoards;
 
@@ -44,8 +41,6 @@ private:
 	std::array<std::vector<BitBoard>, BOARD_DIM * BOARD_DIM> mBishopAttacks;
 	std::array<std::vector<BitBoard>, BOARD_DIM * BOARD_DIM> mRookAttacks;
 
-	std::array<Texture*, NUM_BITBOARDS> mPieceSprites;
-
 	BitBoard GetBishopAttacks(size_t square, BitBoard occupancy) const;
 	BitBoard GetRookAttacks(size_t square, BitBoard occupancy) const;
 	BitBoard GetQueenAttacks(size_t square, BitBoard occupancy) const;
@@ -53,16 +48,7 @@ private:
 	bool InCheck(Colour colour) const;
 
 	void DoMove(size_t pieceColour, size_t from, size_t to);
-
-	std::vector<size_t> GetValidLocations(size_t from);
-	bool CheckValidLocation(Colour colour, size_t to) const;
 	int GetPieceColourAt(size_t loc) const;
-
-	bool TryMove(size_t from, size_t to);
-
-	std::vector<size_t> GetPawnMoves(Colour colour, size_t from) const;
-	std::vector<size_t> GetKnightMoves(Colour colour, size_t from) const;
-	std::vector<size_t> GetKingMoves(Colour colour, size_t from) const;
 
 	BitBoard GetColourBoard(Colour colour) const;
 	BitBoard GetOccupancyBoard() const;
