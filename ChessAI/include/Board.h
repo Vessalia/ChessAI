@@ -9,6 +9,11 @@
 #include "BitBoard.h"
 #include "Texture.h"
 
+void InitSprites(SDL_Renderer* renderer);
+void DestroySprites();
+
+void ResizeSprites();
+
 class Board
 {
 public:
@@ -16,7 +21,6 @@ public:
 	Board(const std::string& fen);
 
 	void Draw(SDL_Renderer* renderer, size_t selectedIndex);
-	void Resize(int width, int height);
 
 	void Print() const;
 

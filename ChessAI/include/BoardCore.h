@@ -5,6 +5,9 @@
 #include <array>
 #include <unordered_map>
 
+#define TEX_WIDTH SCREEN_WIDTH / BOARD_DIM
+#define TEX_HEIGHT SCREEN_HEIGHT / BOARD_DIM
+
 enum Piece
 {
 	PAWN,
@@ -40,19 +43,10 @@ BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook)
 
 int GetMagicIndex(BitBoard occupancy, uint64_t magicNumber, int relevantBits);
 
-void InitSprites(SDL_Renderer* renderer);
-void DestroySprites();
-
-void ResizeSprites(int boardWidth, int boardHeight);
-
 
 
 
 constexpr static size_t NUM_BITBOARDS = 16;
-
-static std::array<Texture*, NUM_BITBOARDS> pieceSprites;
-static size_t texWidth = SCREEN_WIDTH / BOARD_DIM;
-static size_t texHeight = SCREEN_HEIGHT / BOARD_DIM;
 
 static std::unordered_map<char, int> fenHelper =
 {
@@ -71,14 +65,14 @@ static std::unordered_map<char, int> fenHelper =
 	{'k', BLACK | KING}
 };
 
-// precomputed boards for performancec
-constexpr BitBoard notAFile = BitBoard(18374403900871474942ULL);
-constexpr BitBoard notHFile = BitBoard(9187201950435737471ULL);
+// precomputed boards for performance
+constexpr static BitBoard notAFile = BitBoard(18374403900871474942ULL);
+constexpr static BitBoard notHFile = BitBoard(9187201950435737471ULL);
+		  
+constexpr static BitBoard notABFile = BitBoard(18229723555195321596ULL);
+constexpr static BitBoard notHGFile = BitBoard(4557430888798830399ULL);
 
-constexpr BitBoard notABFile = BitBoard(18229723555195321596ULL);
-constexpr BitBoard notHGFile = BitBoard(4557430888798830399ULL);
-
-constexpr std::array<size_t, BOARD_DIM * BOARD_DIM> bishopBitCount = 
+constexpr static std::array<size_t, BOARD_DIM * BOARD_DIM> bishopBitCount = 
 {
 	6, 5, 5, 5, 5, 5, 5, 6,
 	5, 5, 5, 5, 5, 5, 5, 5,
@@ -90,7 +84,7 @@ constexpr std::array<size_t, BOARD_DIM * BOARD_DIM> bishopBitCount =
 	6, 5, 5, 5, 5, 5, 5, 6
 };
 
-constexpr std::array<size_t, BOARD_DIM * BOARD_DIM> rookBitCount =
+constexpr static std::array<size_t, BOARD_DIM * BOARD_DIM> rookBitCount =
 {
 	12, 11, 11, 11, 11, 11, 11, 12,
 	11, 10, 10, 10, 10, 10, 10, 11,
@@ -105,7 +99,7 @@ constexpr std::array<size_t, BOARD_DIM * BOARD_DIM> rookBitCount =
 // precomputed magics with _seed = 1804289383, BOARD_DIM = 8
 #ifdef PREMAGICS
 #define InitMagics()
-constexpr std::array<uint64_t, BOARD_DIM * BOARD_DIM> bishopMagics =
+constexpr static std::array<uint64_t, BOARD_DIM * BOARD_DIM> bishopMagics =
 {
 	18018831494946945ULL,
 	1134767471886336ULL,
@@ -173,7 +167,7 @@ constexpr std::array<uint64_t, BOARD_DIM * BOARD_DIM> bishopMagics =
 	580611413180448ULL
 };
 
-constexpr std::array<uint64_t, BOARD_DIM * BOARD_DIM> rookMagics =
+constexpr static std::array<uint64_t, BOARD_DIM * BOARD_DIM> rookMagics =
 {
 	11565248328107303040ULL,
 	12123725398701785089ULL,

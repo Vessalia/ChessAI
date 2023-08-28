@@ -11,17 +11,12 @@ void Game::Draw(SDL_Renderer* renderer)
 	mBoard.Draw(renderer, mSelectedIndex);
 }
 
-void Game::Resize(int width, int height)
-{
-	mBoard.Resize(width, height);
-}
-
 void Game::HandleMousePress(int x, int y)
 {
 	if (x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT) return;
 
-	x /= texWidth;
-	y /= texHeight;
+	x /= TEX_WIDTH;
+	y /= TEX_HEIGHT;
 	if (!TryMove(x, y))
 	{
 		TrySelect(x, y);

@@ -7,7 +7,6 @@ public:
 	Game();
 
 	void Draw(SDL_Renderer* renderer);
-	void Resize(int width, int height);
 	void HandleMousePress(int x, int y);
 
 	void Print();

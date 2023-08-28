@@ -28,3 +28,6 @@ uint64_t GetMagicNumber()
 {
 	return GetRandU64() & GetRandU64() & GetRandU64();
 }
+
+size_t SCREEN_WIDTH = 640;
+size_t SCREEN_HEIGHT = 720;

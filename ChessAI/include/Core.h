@@ -9,7 +9,6 @@ unsigned int GetRandU32();
 uint64_t GetRandU64();
 uint64_t GetMagicNumber();
 
-
 #ifndef NDEBUG
 #define DEBUG_ASSERT(cond) Assert(cond)
 #define FATAL_ASSERT(cond) DEBUG_ASSERT(cond)
@@ -23,5 +22,5 @@ uint64_t GetMagicNumber();
     }
 #endif
 
-constexpr size_t SCREEN_WIDTH = 720;
-constexpr size_t SCREEN_HEIGHT = 640;
+extern size_t SCREEN_WIDTH;
+extern size_t SCREEN_HEIGHT;

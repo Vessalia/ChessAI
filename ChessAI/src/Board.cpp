@@ -1,6 +1,47 @@
 #include "Board.h"
 #include <algorithm>
 
+static std::array<Texture*, NUM_BITBOARDS> pieceSprites;
+
+void InitSprites(SDL_Renderer* renderer)
+{
+	std::vector<std::string> colours = { "white_", "black_" };
+	std::vector<std::string> pieces = { "pawn", "knight", "bishop", "rook", "queen", "king" };
+	for (size_t colour = WHITE; colour <= BLACK; colour += BLACK)
+	{
+		for (size_t piece = PAWN; piece <= KING; ++piece)
+		{
+			std::string path = "assets/pieces/" + colours[colour / BLACK] + "pieces/" + colours[colour / BLACK] + pieces[piece] + ".png";
+			pieceSprites[colour | piece] = new Texture(path, renderer);
+			pieceSprites[colour | piece]->SetWidth(TEX_WIDTH);
+			pieceSprites[colour | piece]->SetHeight(TEX_HEIGHT);
+		}
+	}
+}
+
+void DestroySprites()
+{
+	for (size_t colour = WHITE; colour <= BLACK; colour += BLACK)
+	{
+		for (size_t piece = PAWN; piece <= KING; ++piece)
+		{
+			delete pieceSprites[colour | piece];
+		}
+	}
+}
+
+void ResizeSprites()
+{
+	std::for_each(pieceSprites.begin(), pieceSprites.end(), [](Texture* sprite)
+		{
+			if (sprite)
+			{
+				sprite->SetWidth(TEX_WIDTH);
+				sprite->SetHeight(TEX_HEIGHT);
+			}
+		});
+}
+
 Board::Board()
 {
 	for (size_t row = 0; row < BOARD_DIM; ++row)
@@ -105,7 +146,7 @@ void Board::Draw(SDL_Renderer* renderer, size_t selectedIndex)
 				colourR = 0; colourG = colourB = 128;
 			}
 
-			SDL_Rect square = { x * texWidth, texHeight * (BOARD_DIM - 1) - y * texHeight, texWidth, texHeight };
+			SDL_Rect square = { x * TEX_WIDTH, TEX_HEIGHT * (BOARD_DIM - 1) - y * TEX_HEIGHT, TEX_WIDTH, TEX_HEIGHT };
 
 			SDL_SetRenderDrawColor(renderer, colourR, colourG, colourB, colourA);
 			SDL_RenderFillRect(renderer, &square);
@@ -113,14 +154,9 @@ void Board::Draw(SDL_Renderer* renderer, size_t selectedIndex)
 			int pieceColour = GetPieceColourAt(PosToIndex(x, y));
 			if (pieceColour == -1) continue;
 
-			pieceSprites[pieceColour]->RenderTexture(renderer, x * texWidth, texHeight * (BOARD_DIM - 1) - y * texHeight);
+			pieceSprites[pieceColour]->RenderTexture(renderer, x * TEX_WIDTH, TEX_HEIGHT * (BOARD_DIM - 1) - y * TEX_HEIGHT);
 		}
 	}
-}
-
-void Board::Resize(int width, int height)
-{
-	ResizeSprites(width, height);
 }
 
 void Board::Print() const
@@ -142,13 +178,12 @@ Board Board::ParseFen(const std::string& fen)
 
 	std::for_each(fen.begin(), fen.end(), [&parsedBoard, boardIndex = 0UL](char curr) mutable
 		{
-			if ((curr >= 'a' && curr <= 'z') ||
-				(curr >= 'A' && curr <= 'Z'))
+			if (fenHelper.find(curr) != fenHelper.end())
 			{
 				int pieceColour = fenHelper[curr];
 				parsedBoard.mPieceBoards[pieceColour].SetBit(boardIndex++);
 			}
-			else if (curr >= '1' && curr <= '9')
+			else if (curr >= '1' && curr <= BOARD_DIM + '0')
 			{
 				boardIndex += curr - '0';
 			}

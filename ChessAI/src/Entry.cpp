@@ -52,7 +52,8 @@ int main()
             {
                 if (e.window.event == SDL_WINDOWEVENT_RESIZED)
                 {
-                    game.Resize(e.window.data1, e.window.data2);
+                    SCREEN_WIDTH = e.window.data1; SCREEN_HEIGHT = e.window.data2;
+                    ResizeSprites();
                 }
             }
         }
@@ -125,6 +126,8 @@ void close()
     SDL_DestroyWindow(gWindow);
     gRenderer = nullptr;
     gWindow = nullptr;
+
+    DestroySprites();
 
     IMG_Quit();
     SDL_Quit();
