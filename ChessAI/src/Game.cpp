@@ -6,6 +6,8 @@
 Game::Game()
 	: mSelectedIndex(Board::INVALID_INDEX) {}
 
+Game::Game(const std::string& fen) : mSelectedIndex(Board::INVALID_INDEX), mBoard(Board(fen)) {}
+
 void Game::Draw(SDL_Renderer* renderer)
 {
 	mBoard.Draw(renderer, mSelectedIndex);

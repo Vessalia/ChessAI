@@ -23,8 +23,6 @@ int main()
     bool quit = false;
     SDL_Event e;
 
-    game.Print();
-
     while (!quit)
     {
         while (SDL_PollEvent(&e))
@@ -100,6 +98,7 @@ bool init()
     }
 
     InitMagics();
+    game = Game(); // need to make sure magics are initialized first
 
     SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 

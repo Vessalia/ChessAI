@@ -3,6 +3,9 @@
 #include <algorithm>
 #include "Texture.h"
 
+std::array<uint64_t, BOARD_DIM* BOARD_DIM> bishopMagics;
+std::array<uint64_t, BOARD_DIM* BOARD_DIM> rookMagics;
+
 size_t PosToIndex(size_t x, size_t y)
 {
 	return x + BOARD_DIM * y;
@@ -242,7 +245,7 @@ BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook)
 		bool fail = false;
 		for (int index = 0; index < occupancyIndex && !fail; ++index)
 		{
-			int magicIndex = (int)((occupancy[index] * magicNum) >> (64 - relevantBits)).to_ullong();
+			int magicIndex = GetMagicIndex(occupancy[index], magicNum.to_ullong(), relevantBits);
 			if (!usedAttacks[magicIndex]) usedAttacks[magicIndex] = attacks[index];
 			else if (usedAttacks[magicIndex].to_ullong() != attacks[index].to_ullong()) fail = true;
 		}

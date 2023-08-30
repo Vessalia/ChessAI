@@ -5,6 +5,7 @@ class Game
 {
 public:
 	Game();
+	Game(const std::string& fen);
 
 	void Draw(SDL_Renderer* renderer);
 	void HandleMousePress(int x, int y);

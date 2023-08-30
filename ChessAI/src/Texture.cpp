@@ -36,12 +36,7 @@ Texture::~Texture()
     if(mTex) SDL_DestroyTexture(mTex);
 }
 
-void Texture::RenderTexture(SDL_Renderer* renderer, int x, int y) const
-{
-    RenderTextureOptions(renderer, x, y, nullptr, 0.0, nullptr, SDL_FLIP_NONE);
-}
-
-void Texture::RenderTextureOptions(SDL_Renderer* renderer, int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip) const
+void Texture::RenderTexture(SDL_Renderer* renderer, int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip) const
 {
     SDL_Rect renderQuad = { x, y, mWidth, mHeight };
 

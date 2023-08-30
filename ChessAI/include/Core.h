@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL.h>
 #include <iostream>
+#include <vector>
 
 #define PREMAGICS
 
@@ -8,6 +9,7 @@ void Assert(bool cond);
 unsigned int GetRandU32();
 uint64_t GetRandU64();
 uint64_t GetMagicNumber();
+std::vector<std::string> Tokenize(const std::string& tokens, const std::string& delimiter);
 
 #ifndef NDEBUG
 #define DEBUG_ASSERT(cond) Assert(cond)

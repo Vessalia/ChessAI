@@ -11,8 +11,7 @@ public:
 
 	~Texture();
 
-	void RenderTexture(SDL_Renderer* renderer, int x, int y) const;
-	void RenderTextureOptions(SDL_Renderer* renderer, int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip) const;
+	void RenderTexture(SDL_Renderer* renderer, int x, int y, SDL_Rect* clip = nullptr, double angle = 0.0, SDL_Point* center = nullptr, SDL_RendererFlip flip = SDL_FLIP_NONE) const;
 
 	void SetWidth(size_t width)
 	{

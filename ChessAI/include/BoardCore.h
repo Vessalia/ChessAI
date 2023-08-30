@@ -235,15 +235,15 @@ constexpr static std::array<uint64_t, BOARD_DIM * BOARD_DIM> rookMagics =
 	281752018887682ULL
 };
 #else
-static std::array<uint64_t, BOARD_DIM * BOARD_DIM> bishopMagics;
-static std::array<uint64_t, BOARD_DIM * BOARD_DIM> rookMagics;
+extern std::array<uint64_t, BOARD_DIM * BOARD_DIM> bishopMagics;
+extern std::array<uint64_t, BOARD_DIM * BOARD_DIM> rookMagics;
 #define InitMagics()\
 {\
 	for (int square = 0; square < BOARD_DIM * BOARD_DIM; ++square)\
 	{\
 		bishopMagics[square] = FindMagicNumber(square, bishopBitCount[square], BISHOP).to_ullong();\
 	}\
-
+\
 	for (int square = 0; square < BOARD_DIM * BOARD_DIM; ++square)\
 	{\
 		rookMagics[square] = FindMagicNumber(square, rookBitCount[square], ROOK).to_ullong();\

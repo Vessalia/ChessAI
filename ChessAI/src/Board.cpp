@@ -172,11 +172,22 @@ void Board::Print() const
 	GetQueenAttacks(PosToIndex(3, 3), occupancy).Print();*/
 }
 
+Colour sideToMove = WHITE;
+uint8_t castlingRights = 0b00001111;
+size_t enpassant;
 Board Board::ParseFen(const std::string& fen)
 {
 	Board parsedBoard;
 
-	std::for_each(fen.begin(), fen.end(), [&parsedBoard, boardIndex = 0UL](char curr) mutable
+	for (size_t piece = PAWN; piece <= KING; ++piece)
+	{
+		for (size_t colour = WHITE; colour <= BLACK; colour += BLACK)
+		{
+			parsedBoard.mPieceBoards[colour | piece] = BitBoard();
+		}
+	}
+
+	std::for_each(fen.begin(), fen.end(), [&parsedBoard, boardIndex = 0UL, piecesPlaced = false](char curr) mutable
 		{
 			if (fenHelper.find(curr) != fenHelper.end())
 			{
@@ -187,7 +198,44 @@ Board Board::ParseFen(const std::string& fen)
 			{
 				boardIndex += curr - '0';
 			}
+			else if (curr == ' ')
+			{
+				piecesPlaced = true;
+			}
 		});
+
+	std::vector<std::string> boardState = Tokenize(fen.substr(fen.find(" ")), " ");
+	if (!boardState.size()) return parsedBoard;
+
+	sideToMove = boardState[0] == "w" ? WHITE : BLACK;
+
+	castlingRights =         0b00000000;
+	uint8_t whiteKingSide =  0b00001000;
+	uint8_t whiteQueenSide = 0b00000100;
+	uint8_t blackKingSide =  0b00000010;
+	uint8_t blackQueenSide = 0b00000001;
+
+	for (char castle : boardState[1])
+	{
+		switch (castle)
+		{
+			case 'K': castlingRights |= whiteKingSide; break;
+			case 'Q': castlingRights |= whiteQueenSide; break;
+			case 'k': castlingRights |= blackKingSide; break;
+			case 'q': castlingRights |= blackQueenSide; break;
+			default: break;
+		}
+	}
+
+	enpassant = Board::INVALID_INDEX;
+	int col = boardState[2][0] - 'a';
+	int row = boardState[2][1] - '1';
+	if (boardState[2].size() == 2 &&
+	    col < BOARD_DIM && col >= 0 &&
+	    row < BOARD_DIM && row >= 0)
+	{
+		enpassant = PosToIndex(col, row);
+	}
 
 	return parsedBoard;
 }

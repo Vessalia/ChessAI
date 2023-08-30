@@ -29,5 +29,26 @@ uint64_t GetMagicNumber()
 	return GetRandU64() & GetRandU64() & GetRandU64();
 }
 
+std::vector<std::string> Tokenize(const std::string& tokens, const std::string& delimiter)
+{
+    std::vector<std::string> tokenized;
+    size_t start = 0;
+    size_t end = tokens.find(delimiter);
+
+    while (end != std::string::npos)
+    {
+        std::string token = tokens.substr(start, end - start);
+        if (!token.empty()) tokenized.push_back(token);
+
+        start = end + delimiter.size();
+        end = tokens.find(delimiter, start);
+    }
+
+    std::string lastToken = tokens.substr(start);
+    if (!lastToken.empty()) tokenized.push_back(lastToken);
+
+    return tokenized;
+}
+
 size_t SCREEN_WIDTH = 640;
 size_t SCREEN_HEIGHT = 720;
