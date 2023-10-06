@@ -49,6 +49,10 @@ private:
 	BitBoard GetRookAttacks(size_t square, BitBoard occupancy) const;
 	BitBoard GetQueenAttacks(size_t square, BitBoard occupancy) const;
 
+	bool IsSquareAttacked(size_t square, Colour side) const;
+
+	void GenerateMoves() const;
+
 	bool InCheck(Colour colour) const;
 
 	void DoMove(size_t pieceColour, size_t from, size_t to);

@@ -8,7 +8,7 @@
 #define TEX_WIDTH SCREEN_WIDTH / BOARD_DIM
 #define TEX_HEIGHT SCREEN_HEIGHT / BOARD_DIM
 
-enum Piece
+enum Piece : uint8_t
 {
 	PAWN,
 	KNIGHT,
@@ -16,17 +16,17 @@ enum Piece
 	ROOK,
 	QUEEN,
 	KING,
-	NUM_PIECES
+	NO_PIECE
 };
 
-enum Colour
+enum Colour : uint8_t
 {
 	WHITE = 0,
 	BLACK = 8,
 	NUM_COLOURS = 2
 };
 
-size_t PosToIndex(size_t x, size_t y);
+constexpr size_t PosToIndex(size_t x, size_t y);
 
 BitBoard MaskPawnAttacks(Colour colour, size_t square);
 BitBoard MaskKnightAttacks(size_t square);
@@ -43,8 +43,41 @@ BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook)
 
 int GetMagicIndex(BitBoard occupancy, uint64_t magicNumber, int relevantBits);
 
+unsigned int inline EncodeMove(uint64_t sourceSquare, uint64_t targetSquare, Piece piece, Piece promoted, bool capture, bool doublePush, bool enpassant, bool castling)
+{
+	return (castling ? 1 : 0) << 23 | (enpassant ? 1 : 0) << 22 | (doublePush ? 1 : 0) << 21 | (capture ? 1 : 0) << 20 | promoted << 16 | piece << 12 | targetSquare << 6 | sourceSquare;
+}
+char inline DecodeMoveSource(unsigned int moveEncoding)
+{
+	return moveEncoding & 0x3F;
+}
+char inline DecodeMoveTarget(unsigned int moveEncoding)
+{
+	return (moveEncoding & 0xFC0) >> 6;
+}
+char inline DecodeMovePiece(unsigned int moveEncoding)
+{
+	return (moveEncoding & 0xF000) >> 12;
+}
+char inline DecodeMovePromote(unsigned int moveEncoding)
+{
+	return (moveEncoding & 0xF0000) >> 16;
+}
+char inline DecodeMoveFlags(unsigned int moveEncoding)
+{
+	return (moveEncoding & 0xF00000) >> 20;
+}
 
-
+/* move encoding (left + hex encoding uses BOARD_DIM == 8), length must be 12 + 4 * log_2(BOARD_DIM) bits long
+	0000 0000 0000 0000 0011 1111 source square log_2(BOARD_DIM*BOARD_DIM) number of bits needed          0x00003F
+	0000 0000 0000 1111 1100 0000 target square															  0x000FC0
+	0000 0000 1111 0000 0000 0000 piece																	  0x00F000
+	0000 1111 0000 0000 0000 0000 promoted piece														  0x0F0000
+	0001 0000 0000 0000 0000 0000 capture flag															  0x100000
+	0010 0000 0000 0000 0000 0000 double push flag														  0x200000
+	0100 0000 0000 0000 0000 0000 enpassant flag														  0x400000
+	1000 0000 0000 0000 0000 0000 castling flag															  0x800000
+*/
 
 constexpr static size_t NUM_BITBOARDS = 16;
 

@@ -5,6 +5,9 @@
 
 #define PREMAGICS
 
+extern size_t SCREEN_WIDTH;
+extern size_t SCREEN_HEIGHT;
+
 void Assert(bool cond);
 unsigned int GetRandU32();
 uint64_t GetRandU64();
@@ -23,6 +26,3 @@ std::vector<std::string> Tokenize(const std::string& tokens, const std::string& 
         SDL_Quit(); \
     }
 #endif
-
-extern size_t SCREEN_WIDTH;
-extern size_t SCREEN_HEIGHT;

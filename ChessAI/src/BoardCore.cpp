@@ -3,10 +3,12 @@
 #include <algorithm>
 #include "Texture.h"
 
+#ifndef PREMAGICS
 std::array<uint64_t, BOARD_DIM* BOARD_DIM> bishopMagics;
 std::array<uint64_t, BOARD_DIM* BOARD_DIM> rookMagics;
+#endif
 
-size_t PosToIndex(size_t x, size_t y)
+constexpr size_t PosToIndex(size_t x, size_t y)
 {
 	return x + BOARD_DIM * y;
 }

@@ -18,6 +18,7 @@ public:
 	BitBoard& operator*=(const BitBoard& other);
 	BitBoard& operator*=(size_t other);
 
+	BitBoard operator~() const;
 	BitBoard operator<<(size_t numBits) const;
 	BitBoard operator>>(size_t numBits) const;
 	BitBoard operator&(const BitBoard& other) const;

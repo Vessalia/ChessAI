@@ -2,6 +2,9 @@
 
 static unsigned int _seed = 1804289383;
 
+size_t SCREEN_WIDTH = 640;
+size_t SCREEN_HEIGHT = 720;
+
 void Assert(bool cond)
 {
 	SDL_assert(cond);
@@ -49,6 +52,3 @@ std::vector<std::string> Tokenize(const std::string& tokens, const std::string& 
 
     return tokenized;
 }
-
-size_t SCREEN_WIDTH = 640;
-size_t SCREEN_HEIGHT = 720;

@@ -47,6 +47,13 @@ BitBoard& BitBoard::operator*=(size_t other)
 	return *this;
 }
 
+BitBoard BitBoard::operator~() const
+{
+	uint64_t notBoard = ~mBitBoard.to_ullong();
+	BitBoard result = BitBoard(notBoard);
+	return result;
+}
+
 BitBoard BitBoard::operator<<(size_t numBits) const
 {
 	BitBoard result;
