@@ -111,6 +111,8 @@ Board::Board()
 			}
 		}
 	}
+
+	GenerateMoves();
 }
 
 Board::Board(const std::string& fen)
@@ -176,7 +178,7 @@ void Board::Print() const
 
 	GetQueenAttacks(PosToIndex(3, 3), occupancy).Print();*/
 	GetOccupancyBoard().Print();
-	GenerateMoves();
+	PrintMoveList();
 }
 
 Colour sideToMove = WHITE;
@@ -195,7 +197,7 @@ Board Board::ParseFen(const std::string& fen)
 	}
 
 	std::vector<std::string> boardState = Tokenize(fen, " ");
-	size_t boardIndex = 0;
+	size_t boardIndex = (BOARD_DIM - 1) * BOARD_DIM;
 	for (char curr : boardState[0])
 	{
 		if (fenHelper.find(curr) != fenHelper.end())
@@ -207,9 +209,9 @@ Board Board::ParseFen(const std::string& fen)
 		{
 			boardIndex += curr - '0';
 		}
-		else if (curr == ' ')
+		else if (curr == '/')
 		{
-			break;
+			boardIndex -= 2 * BOARD_DIM;
 		}
 	}
 
@@ -281,18 +283,16 @@ bool Board::IsSquareAttacked(size_t square, Colour side) const
 	return false;
 }
 
-void Board::GenerateMoves() const
+void Board::GenerateMoves()
 {
-	size_t sourceSquare, targetSquare;
+	size_t sourceSquare;
 
-	BitBoard state, attacks, whiteOccupancy, blackOccupancy, occupancy;
-	whiteOccupancy = GetColourBoard(WHITE);
-	blackOccupancy = GetColourBoard(BLACK);
-	BitBoard occupancies[2] = { blackOccupancy, whiteOccupancy };
-	occupancy = whiteOccupancy | blackOccupancy;
+	Colour colour = sideToMove;
 
-	Colour colour = Colour(sideToMove);
-	int occIndex = colour == WHITE ? 0 : 1;
+	BitBoard state, attacks, selfOccupancy, otherOccupancy, occupancy;
+	selfOccupancy = GetColourBoard(colour);
+	otherOccupancy = GetColourBoard((Colour)(((uint8_t)colour) ^ BLACK));
+	occupancy = selfOccupancy | otherOccupancy;
 
 	uint8_t kingSideCastle = WHITE_KING_SIDE_CASTLE | BLACK_KING_SIDE_CASTLE;
 	uint8_t queenSideCastle = WHITE_QUEEN_SIDE_CASTLE | BLACK_QUEEN_SIDE_CASTLE;
@@ -304,6 +304,7 @@ void Board::GenerateMoves() const
 			!occupancy.ReadBit(PosToIndex(BOARD_DIM - 2, boardSide)))
 		{
 			std::cout << "kingside castle " << std::bitset<4>(castlingRights) << std::endl;
+			//AddMove();
 		}
 	}
 
@@ -314,275 +315,186 @@ void Board::GenerateMoves() const
 			!occupancy.ReadBit(PosToIndex(3, boardSide)))
 		{
 			std::cout << "queenside castle " << std::bitset<4>(castlingRights) << std::endl;
+			//AddMove();
 		}
 	}
 
-	for (size_t piece = PAWN; piece <= KING; ++piece)
+	for (size_t pieceVal = PAWN; pieceVal <= KING; ++pieceVal)
 	{
-		piece = (Piece)piece;
-		state = mPieceBoards[colour | piece];
-
-		if (piece == PAWN)
+		Piece piece = (Piece)pieceVal;
+		BitBoard state = mPieceBoards[colour | piece];
+		while (state)
 		{
-			int dir = colour == WHITE ? 1 : -1;
+			sourceSquare = state.GetLSBIndex();
+			BitBoard attacks;
 
-			while (state)
+			switch (piece)
 			{
-				sourceSquare = state.GetLSBIndex();
-				targetSquare = sourceSquare + dir * BOARD_DIM;
-
-				bool promotionRow = sourceSquare >= (BOARD_DIM - 2) * BOARD_DIM && sourceSquare <= (BOARD_DIM - 1) * BOARD_DIM;
-				bool doublePushRow = sourceSquare >= BOARD_DIM && sourceSquare < 2 * BOARD_DIM;
-
-				if (colour == BLACK)
-				{
-					std::swap(promotionRow, doublePushRow);
-				}
-
-				// quiet pawn moves
-
-				if (targetSquare >= 0 && targetSquare < BOARD_DIM * BOARD_DIM && !occupancy.ReadBit(targetSquare)) 
-				{
-					if (promotionRow)
-					{
-						//promote(sourceSquare, targetSquare);
-						std::cout << "promote " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-					else 
-					{
-						//move(sourceSquare, targetSquare);
-						std::cout << "push " << sourceSquare << "->" << targetSquare << std::endl;
-
-						if (doublePushRow && !occupancy.ReadBit(targetSquare + dir * BOARD_DIM)) 
-						{
-							//move(sourceSquare, targetSquare + dir * BOARD_DIM);
-							std::cout << "double push " << sourceSquare << "->" << targetSquare + dir * BOARD_DIM << std::endl;
-						}
-					}
-				}
-
-				// pawn attacks moves
-
-				attacks = mPawnAttacks[occIndex][sourceSquare] & occupancies[occIndex];
-
-				while (attacks)
-				{
-					targetSquare = attacks.GetLSBIndex();
-
-					if (promotionRow)
-					{
-						//capturePromote(sourceSquare, targetSquare);
-						std::cout << "capture promote " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-					else
-					{
-						//capture(sourceSquare, targetSquare);
-						std::cout << "capture " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-
-					attacks.PopBit(targetSquare);
-				}
-
-				if (enpassant != INVALID_INDEX && colour == sideToMove)
-				{
-					BitBoard enpassantAttacks = mPawnAttacks[occIndex][sourceSquare] & BitBoard().SetBit(enpassant);
-					if (enpassantAttacks)
-					{
-						targetSquare = enpassantAttacks.GetLSBIndex();
-						std::cout << "capture enpassant " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-				}
-
-				state.PopBit(sourceSquare);
+			case PAWN:
+				GeneratePawnMoves(colour, sourceSquare, occupancy, otherOccupancy);
+				break;
+			case KNIGHT:
+				attacks = mKnightAttacks[sourceSquare] & (~selfOccupancy);
+				GenerateMovesForPiece(piece, colour, sourceSquare, attacks, otherOccupancy);
+				break;
+			case BISHOP:
+				attacks = GetBishopAttacks(sourceSquare, occupancy) & (~selfOccupancy);
+				GenerateMovesForPiece(piece, colour, sourceSquare, attacks, otherOccupancy);
+				break;
+			case ROOK:
+				attacks = GetRookAttacks(sourceSquare, occupancy) & (~selfOccupancy);
+				GenerateMovesForPiece(piece, colour, sourceSquare, attacks, otherOccupancy);
+				break;
+			case QUEEN:
+				attacks = GetQueenAttacks(sourceSquare, occupancy) & (~selfOccupancy);
+				GenerateMovesForPiece(piece, colour, sourceSquare, attacks, otherOccupancy);
+				break;
+			case KING:
+				attacks = mKingAttacks[sourceSquare] & (~selfOccupancy);
+				GenerateMovesForPiece(piece, colour, sourceSquare, attacks, otherOccupancy);
+				break;
 			}
+
+			state.PopBit(sourceSquare);
 		}
+	}
+}
 
-		// knight moves
-		else if (piece == KNIGHT)
+void Board::GeneratePawnMoves(Colour colour, size_t sourceSquare, const BitBoard& occupancy, const BitBoard& otherOccupancy)
+{
+	int dir = (colour == WHITE) ? 1 : -1;
+	size_t targetSquare = sourceSquare + dir * BOARD_DIM;
+
+	bool promotionRow = sourceSquare >= (BOARD_DIM - 2) * BOARD_DIM && sourceSquare <= (BOARD_DIM - 1) * BOARD_DIM;
+	bool doublePushRow = sourceSquare >= BOARD_DIM && sourceSquare < 2 * BOARD_DIM;
+
+	if (colour == BLACK)
+	{
+		std::swap(promotionRow, doublePushRow);
+	}
+
+	// quiet pawn moves
+	if (targetSquare >= 0 && targetSquare < BOARD_DIM * BOARD_DIM && !occupancy.ReadBit(targetSquare))
+	{
+		if (promotionRow)
 		{
-			while (state)
-			{
-				sourceSquare = state.GetLSBIndex();
-				BitBoard attacks = mKnightAttacks[sourceSquare] & (~occupancies[!occIndex]);
-
-				while (attacks)
-				{
-					targetSquare = attacks.GetLSBIndex();
-
-					char name = WHITE|PAWN;
-					for (auto kvp : fenHelper)
-					{
-						if (colour|piece == kvp.second)
-						{
-							name = kvp.first;
-							break;
-						}
-					}
-
-					if (occupancies[occIndex].ReadBit(targetSquare))
-					{
-						std::cout << "piece capture " << name << " " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-					else
-					{
-						std::cout << "piece move " << name << " " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-
-					attacks.PopBit(targetSquare);
-				}
-
-				state.PopBit(sourceSquare);
-			}
+			std::cout << "promote " << sourceSquare << "->" << targetSquare << std::endl;
+			AddMove(sourceSquare, targetSquare, colour | PAWN, KNIGHT, false, false, false, false);
+			AddMove(sourceSquare, targetSquare, colour | PAWN, BISHOP, false, false, false, false);
+			AddMove(sourceSquare, targetSquare, colour | PAWN, ROOK, false, false, false, false);
+			AddMove(sourceSquare, targetSquare, colour | PAWN, QUEEN, false, false, false, false);
 		}
-
-		else if (piece == BISHOP)
+		else
 		{
-			while (state)
+			std::cout << "push " << sourceSquare << "->" << targetSquare << std::endl;
+			AddMove(sourceSquare, targetSquare, colour | PAWN, 0, false, false, false, false);
+
+			if (doublePushRow && !occupancy.ReadBit(targetSquare + dir * BOARD_DIM))
 			{
-				sourceSquare = state.GetLSBIndex();
-				BitBoard attacks = GetBishopAttacks(sourceSquare, occupancy);
-
-				while (attacks)
-				{
-					targetSquare = attacks.GetLSBIndex();
-
-					char name = WHITE | PAWN;
-					for (auto kvp : fenHelper)
-					{
-						if (colour | piece == kvp.second)
-						{
-							name = kvp.first;
-							break;
-						}
-					}
-
-					if (occupancies[occIndex].ReadBit(targetSquare))
-					{
-						std::cout << "piece capture " << name << " " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-					else
-					{
-						std::cout << "piece move " << name << " " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-
-					attacks.PopBit(targetSquare);
-				}
-
-				state.PopBit(sourceSquare);
-			}
-		}
-
-		else if (piece == ROOK)
-		{
-			while (state)
-			{
-				sourceSquare = state.GetLSBIndex();
-				BitBoard attacks = GetRookAttacks(sourceSquare, occupancy);
-
-				while (attacks)
-				{
-					targetSquare = attacks.GetLSBIndex();
-
-					char name = WHITE | PAWN;
-					for (auto kvp : fenHelper)
-					{
-						if (colour | piece == kvp.second)
-						{
-							name = kvp.first;
-							break;
-						}
-					}
-
-					if (occupancies[occIndex].ReadBit(targetSquare))
-					{
-						std::cout << "piece capture " << name << " " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-					else
-					{
-						std::cout << "piece move " << name << " " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-
-					attacks.PopBit(targetSquare);
-				}
-
-				state.PopBit(sourceSquare);
-			}
-		}
-
-		else if (piece == QUEEN)
-		{
-			while (state)
-			{
-				sourceSquare = state.GetLSBIndex();
-				BitBoard attacks = GetQueenAttacks(sourceSquare, occupancy);
-
-				while (attacks)
-				{
-					targetSquare = attacks.GetLSBIndex();
-
-					char name = WHITE | PAWN;
-					for (auto kvp : fenHelper)
-					{
-						if (colour | piece == kvp.second)
-						{
-							name = kvp.first;
-							break;
-						}
-					}
-
-					if (occupancies[occIndex].ReadBit(targetSquare))
-					{
-						std::cout << "piece capture " << name << " " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-					else if (!occupancies[!occIndex].ReadBit(targetSquare))
-					{
-						std::cout << "piece move " << name << " " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-
-					attacks.PopBit(targetSquare);
-				}
-
-				state.PopBit(sourceSquare);
-			}
-		}
-
-		else if (piece == KING)
-		{
-			while (state)
-			{
-				sourceSquare = state.GetLSBIndex();
-				BitBoard attacks = mKingAttacks[sourceSquare] & (~occupancies[!occIndex]);
-
-				while (attacks)
-				{
-					targetSquare = attacks.GetLSBIndex();
-
-					char name = WHITE | PAWN;
-					for (auto kvp : fenHelper)
-					{
-						if (colour | piece == kvp.second)
-						{
-							name = kvp.first;
-							break;
-						}
-					}
-
-					if (occupancies[occIndex].ReadBit(targetSquare))
-					{
-						std::cout << "piece capture " << name << " " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-					else
-					{
-						std::cout << "piece move " << name << " " << sourceSquare << "->" << targetSquare << std::endl;
-					}
-
-					attacks.PopBit(targetSquare);
-				}
-
-				state.PopBit(sourceSquare);
+				std::cout << "double push " << sourceSquare << "->" << targetSquare + dir * BOARD_DIM << std::endl;
+				AddMove(sourceSquare, targetSquare + dir * BOARD_DIM, colour | PAWN, 0, false, true, false, false);
 			}
 		}
 	}
+
+	// pawn attack moves
+	int occIndex = colour != WHITE;
+	BitBoard attacks = mPawnAttacks[occIndex][sourceSquare] & otherOccupancy;
+
+	while (attacks)
+	{
+		targetSquare = attacks.GetLSBIndex();
+
+		if (promotionRow)
+		{
+			std::cout << "capture promote " << sourceSquare << "->" << targetSquare << std::endl;
+			AddMove(sourceSquare, targetSquare, colour | PAWN, KNIGHT, true, false, false, false);
+			AddMove(sourceSquare, targetSquare, colour | PAWN, BISHOP, true, false, false, false);
+			AddMove(sourceSquare, targetSquare, colour | PAWN, ROOK, true, false, false, false);
+			AddMove(sourceSquare, targetSquare, colour | PAWN, QUEEN, true, false, false, false);
+		}
+		else
+		{
+			std::cout << "capture " << sourceSquare << "->" << targetSquare << std::endl;
+			AddMove(sourceSquare, targetSquare, colour | PAWN, 0, true, false, false, false);
+		}
+
+		attacks.PopBit(targetSquare);
+	}
+
+	if (enpassant != INVALID_INDEX && colour == sideToMove)
+	{
+		BitBoard enpassantAttacks = mPawnAttacks[occIndex][sourceSquare] & BitBoard().SetBit(enpassant);
+		if (enpassantAttacks)
+		{
+			targetSquare = enpassantAttacks.GetLSBIndex();
+			std::cout << "capture enpassant " << sourceSquare << "->" << targetSquare << std::endl;
+		}
+	}
+}
+
+void Board::GenerateMovesForPiece(Piece piece, Colour colour, size_t sourceSquare, BitBoard& attacks, const BitBoard& occupancy)
+{
+	while (attacks)
+	{
+		size_t targetSquare = attacks.GetLSBIndex();
+
+		if (occupancy.ReadBit(targetSquare))
+		{
+			std::cout << "piece capture: " << sourceSquare << "->" << targetSquare << std::endl;
+			AddMove(sourceSquare, targetSquare, colour | piece, 0, true, false, false, false);
+		}
+		else
+		{
+			std::cout << "piece move: " << sourceSquare << "->" << targetSquare << std::endl;
+			AddMove(sourceSquare, targetSquare, colour | piece, 0, false, false, false, false);
+		}
+
+		attacks.PopBit(targetSquare);
+	}
+}
+
+void Board::AddMove(uint64_t sourceSquare, uint64_t targetSquare, uint8_t piece, uint8_t promoted, bool capture, bool doublePush, bool enpassant, bool castling)
+{
+	if (mMoveCount < mMoveList.size())
+	{
+		mMoveList[mMoveCount++] = EncodeMove(sourceSquare, targetSquare, piece, promoted, capture, doublePush, enpassant, castling);
+	}
+}
+
+void Board::PrintMoveList() const
+{
+	for (unsigned int i = 0; i < mMoveCount; ++i)
+	{
+		PrintMove(mMoveList[i]);
+	}
+}
+
+void Board::PrintMove(int moveEncoding) const
+{
+	char source = DecodeMoveSource(moveEncoding);
+	char target = DecodeMoveTarget(moveEncoding);
+	char piece = DecodeMovePiece(moveEncoding);
+	char promote = DecodeMovePromote(moveEncoding);
+	char flags = DecodeMoveFlags(moveEncoding);
+
+	char name = WHITE | PAWN;
+	char promoteName = WHITE | PAWN;
+	for (auto kvp : fenHelper)
+	{
+		if (piece == kvp.second)
+		{
+			name = kvp.first;
+		}
+		if ((BLACK | promote) == kvp.second)
+		{
+			promoteName = kvp.first;
+		}
+	}
+
+	std::cout << indexToCoord[source] << indexToCoord[target];
+	if ((promote & ~piece) & 0b111) std::cout << promoteName;
+	std::cout << std::endl;
 }
 
 bool Board::InCheck(Colour colour) const

@@ -45,13 +45,23 @@ private:
 	std::array<std::vector<BitBoard>, BOARD_DIM * BOARD_DIM> mBishopAttacks;
 	std::array<std::vector<BitBoard>, BOARD_DIM * BOARD_DIM> mRookAttacks;
 
+	std::array<int, 256> mMoveList;
+	unsigned int mMoveCount = 0;
+
 	BitBoard GetBishopAttacks(size_t square, BitBoard occupancy) const;
 	BitBoard GetRookAttacks(size_t square, BitBoard occupancy) const;
 	BitBoard GetQueenAttacks(size_t square, BitBoard occupancy) const;
 
 	bool IsSquareAttacked(size_t square, Colour side) const;
 
-	void GenerateMoves() const;
+	void GenerateMoves();
+	void GeneratePawnMoves(Colour colour, size_t sourceSquare, const BitBoard& occupancy, const BitBoard& otherOccupancy);
+	void GenerateMovesForPiece(Piece piece, Colour colour, size_t sourceSquare, BitBoard& attacks, const BitBoard& occupancy);
+
+	void AddMove(uint64_t sourceSquare, uint64_t targetSquare, uint8_t piece, uint8_t promoted, bool capture, bool doublePush, bool enpassant, bool castling);
+
+	void PrintMoveList() const;
+	void PrintMove(int moveEncoding) const;
 
 	bool InCheck(Colour colour) const;
 

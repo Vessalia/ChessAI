@@ -43,7 +43,7 @@ BitBoard FindMagicNumber(size_t square, size_t relevantBits, Piece bishopOrRook)
 
 int GetMagicIndex(BitBoard occupancy, uint64_t magicNumber, int relevantBits);
 
-unsigned int inline EncodeMove(uint64_t sourceSquare, uint64_t targetSquare, Piece piece, Piece promoted, bool capture, bool doublePush, bool enpassant, bool castling)
+unsigned int inline EncodeMove(uint64_t sourceSquare, uint64_t targetSquare, uint8_t piece, uint8_t promoted, bool capture, bool doublePush, bool enpassant, bool castling)
 {
 	return (castling ? 1 : 0) << 23 | (enpassant ? 1 : 0) << 22 | (doublePush ? 1 : 0) << 21 | (capture ? 1 : 0) << 20 | promoted << 16 | piece << 12 | targetSquare << 6 | sourceSquare;
 }
@@ -95,7 +95,21 @@ static std::unordered_map<char, int> fenHelper =
 	{'b', BLACK | BISHOP},
 	{'r', BLACK | ROOK},
 	{'q', BLACK | QUEEN},
-	{'k', BLACK | KING}
+	{'k', BLACK | KING},
+
+	{' ', NO_PIECE}
+};
+
+static std::string indexToCoord[] =
+{
+	"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
+	"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+	"a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+	"a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+	"a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+	"a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+	"a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8", "INVALID"
 };
 
 // precomputed boards for performance

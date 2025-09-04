@@ -4,7 +4,7 @@
 class Game
 {
 public:
-	Game();
+	Game() = default;
 	Game(const std::string& fen);
 
 	void Draw(SDL_Renderer* renderer);
@@ -15,7 +15,7 @@ public:
 private:
 	Board mBoard;
 
-	size_t mSelectedIndex; // could be delegated to separate class, but this is easier
+	size_t mSelectedIndex = Board::INVALID_INDEX; // could be delegated to separate class, but this is easier
 
 	bool TrySelect(size_t x, size_t y);
 	bool TryMove(size_t x, size_t y);

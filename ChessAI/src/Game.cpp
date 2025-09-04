@@ -3,10 +3,7 @@
 #include "BoardCore.h"
 #include <random>
 
-Game::Game()
-	: mSelectedIndex(Board::INVALID_INDEX) {}
-
-Game::Game(const std::string& fen) : mSelectedIndex(Board::INVALID_INDEX), mBoard(Board(fen)) {}
+Game::Game(const std::string& fen) : mBoard(Board(fen)) {}
 
 void Game::Draw(SDL_Renderer* renderer)
 {

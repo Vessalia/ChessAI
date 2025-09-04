@@ -100,7 +100,6 @@ bool init()
     }
 
     InitMagics();
-    game = Game("N7/1K6/Qp6/B7/8/8/8/1R6 w KQkq -"); // need to make sure magics are initialized first
 
     SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
